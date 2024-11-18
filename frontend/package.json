@@ -19,7 +19,6 @@
     "antd": "^5.22.1",
     "axios": "^1.7.7",
     "crypto-js": "^4.2.0",
-    "electron": "^25.3.1",
     "jwt-decode": "^4.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -44,13 +43,15 @@
     "appId": "com.yourapp.id",
     "files": [
       "dist/**/*",
-      "electron-main.js"
+      "electron-main.js",
+      "preload.js"
     ],
     "directories": {
       "buildResources": "build"
     },
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "executableName": "KagunTattooApp"
     }
   }
 }
