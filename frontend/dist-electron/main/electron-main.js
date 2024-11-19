@@ -11,6 +11,7 @@ function createWindow() {
       contextIsolation: true
     }
   });
+  win.setMenuBarVisibility(false);
   if (process.env.NODE_ENV === "development") {
     win.loadURL("http://localhost:5173");
   } else {

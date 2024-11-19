@@ -40,18 +40,23 @@
     "vite": "^5.4.10"
   },
   "build": {
-    "appId": "com.yourapp.id",
+    "appId": "com.kagun.tattoo",
     "files": [
       "dist/**/*",
       "electron-main.js",
-      "preload.js"
+      "preload.js",
+      "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+      "!**/node_modules/.bin",
+      "!**/node_modules/**/test",
+      "!**/node_modules/**/tests"
     ],
+    "compression": "maximum",
     "directories": {
       "buildResources": "build"
     },
     "win": {
       "target": "nsis",
-      "executableName": "KagunTattooApp"
+      "executableName": "Kagun Tattoo"
     }
   }
 }
