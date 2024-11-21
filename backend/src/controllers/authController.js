@@ -37,7 +37,7 @@ async function logarTatuador(req, res){
 
     const token = jwt.sign({ id: tatuador.email }, 'secreta-chave', { expiresIn: '1h' });
 
-    res.status(200).json({ mensagem: 'Login realizado com sucesso.' });
+    res.status(200).json(token, { mensagem: 'Login realizado com sucesso.' });
 }
 
 export {
