@@ -15,8 +15,8 @@ Este projeto visa desenvolver um software para o gerenciamento de estoque e agen
 
 ## Tecnologias Utilizadas
 * Backend: Node.js, Express
-* Frontend: HTML, CSS, JavaScript, React
-* Banco de Dados: MongoDB
+* Frontend: Electron
+* Banco de Dados: PostgressSQL
 * Controle de Versão: Git
 
 ## Estrutura do Projeto
