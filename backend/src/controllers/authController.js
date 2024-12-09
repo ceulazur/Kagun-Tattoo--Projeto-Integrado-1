@@ -1,6 +1,6 @@
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import tatuadores from '../models/tatuadores.js';
+const bcrypt = require ('bcrypt');
+const jwt = require ('jsonwebtoken');
+const tatuadores = require ('../models/tatuadores.js');
 
 async function cadastrarTatuador(req, res){
     const { nome, email, senha } = req.body;
@@ -37,10 +37,10 @@ async function logarTatuador(req, res){
 
     const token = jwt.sign({ id: tatuador.email }, 'secreta-chave', { expiresIn: '1h' });
 
-    res.status(200).json(token, { mensagem: 'Login realizado com sucesso.' });
+    res.status(200).json({token, mensagem: 'Login realizado com sucesso.' });
 }
 
-export {
+module.exports = {
     cadastrarTatuador,
     logarTatuador
 };

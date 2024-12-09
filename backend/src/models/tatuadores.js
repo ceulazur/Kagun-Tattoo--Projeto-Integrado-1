@@ -1,3 +1,3 @@
 const tatuadores = [];
 
-export default tatuadores;
+module.exports = tatuadores;
