@@ -1,46 +1,73 @@
-const bcrypt = require ('bcrypt');
-const jwt = require ('jsonwebtoken');
-const tatuadores = require ('../models/tatuadores.js');
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import { PrismaClient } from '@prisma/client';
 
-async function cadastrarTatuador(req, res){
-    const { nome, email, senha } = req.body;
+const prisma = new PrismaClient();
 
-    if (!nome || !email || !senha)
+export async function cadastrarTatuador(req, res) {
+    const { cpf, nome, email, senha } = req.body;
+
+    if (!cpf || !nome || !email || !senha) {
         return res.status(400).json({ mensagem: 'Preencha todos os campos obrigatórios.' });
+    }
 
-    const emailExiste = tatuadores.find(tatuador => tatuador.email === email);
+    try {
+        // Verificando se o email ou CPF já existe no banco
+        const emailExiste = await prisma.tatuador.findUnique({ where: { email } });
+        const cpfExiste = await prisma.tatuador.findUnique({ where: { cpf } });
 
-    if(emailExiste)
-        return res.status(400).json({ mensagem: 'E-mail já cadastrado.' });
+        if(emailExiste || cpfExiste){
+            return res.status(400).json({ mensagem: 'E-mail ou CPF já cadastrado.' });
+        }
 
-    const senhaCriptografada = await bcrypt.hash(senha, 10);
+        // Criptografando a senha
+        const senhaCriptografada = await bcrypt.hash(senha, 10);
 
-    tatuadores.push({ nome, email, senha: senhaCriptografada });
-    res.status(201).json({ mensagem: 'Tatuador cadastrado com sucesso.' });
+        // Salvando no banco de dados
+        const novoTatuador = await prisma.tatuador.create({
+            data: {
+                cpf,
+                nome,
+                email,
+                senha: senhaCriptografada
+            }
+        });
+
+        return res.status(201).json({ mensagem: 'Tatuador cadastrado com sucesso.', tatuador: novoTatuador });
+    } catch(erro) {
+        console.log(erro);
+        return res.status(500).json({ mensagem: 'Erro ao cadastrar tatuador.' });
+    }
 }
 
-async function logarTatuador(req, res){
+export async function logarTatuador(req, res) {
     const { email, senha } = req.body;
 
-    if(!email || !senha)
+    if (!email || !senha) {
         return res.status(400).json({ mensagem: 'Preencha todos os campos obrigatórios.' });
+    }
 
-    const tatuador = tatuadores.find(tatuador => tatuador.email === email);
+    try {
+        // Buscando o tatuador pelo email
+        const tatuador = await prisma.tatuador.findUnique({ where: { email } });
 
-    if(!tatuador)
-        return res.status(400).json({ mensagem: 'E-mail ou senha inválidos.' });
+        if(!tatuador){
+            return res.status(400).json({ mensagem: 'E-mail ou senha inválidos.' });
+        }
 
-    const senhaValida = await bcrypt.compare(senha, tatuador.senha);
+        // Verificando a senha
+        const senhaValida = await bcrypt.compare(senha, tatuador.senha);
 
-    if(!senhaValida)
-        return res.status(400).json({ mensagem: 'E-mail ou senha inválidos.' });
+        if(!senhaValida){
+            return res.status(400).json({ mensagem: 'E-mail ou senha inválidos.' });
+        }
 
-    const token = jwt.sign({ id: tatuador.email }, 'secreta-chave', { expiresIn: '1h' });
+        // Gerando o Token JWT
+        const token = jwt.sign({ id: tatuador.idTatuador }, process.env.JWT_SECRET || 'secreta-chave', { expiresIn: '1h' });
 
-    res.status(200).json({token, mensagem: 'Login realizado com sucesso.' });
+        return res.status(200).json({ token, mensagem: 'Login realizado com sucesso.' });
+    } catch(erro) {
+        console.error(error);
+        return res.status(500).json({ mensagem: 'Erro ao realizar login.' });
+    }
 }
-
-module.exports = {
-    cadastrarTatuador,
-    logarTatuador
-};
