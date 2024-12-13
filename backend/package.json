@@ -2,7 +2,7 @@
   "name": "backend",
   "version": "0.0.0",
   "description": "Kagun Tattoo Application",
-  "type": "commonjs",
+  "type": "module",
   "main": "server.js",
   "scripts": {
     "start": "node src/app.js",

@@ -1,9 +1,9 @@
-const express = require ('express');
-const { cadastrarTatuador, logarTatuador } = require ('../controllers/authController.js');
+import express from 'express';
+import { cadastrarTatuador, logarTatuador } from '../controllers/authController.js';
 
 const router = express.Router();
 
 router.post('/cadastro', cadastrarTatuador);
 router.post('/login', logarTatuador);
 
-module.exports = router;
+export default router;

@@ -1,17 +1,19 @@
-const bcrypt = require ('bcrypt');
-const jwt = require ('jsonwebtoken');
-const tatuadores = require ('../models/tatuadores.js');
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import tatuadores from '../models/tatuadores.js';
 
-async function cadastrarTatuador(req, res){
+export async function cadastrarTatuador(req, res) {
     const { nome, email, senha } = req.body;
 
-    if (!nome || !email || !senha)
+    if (!nome || !email || !senha) {
         return res.status(400).json({ mensagem: 'Preencha todos os campos obrigatórios.' });
+    }
 
     const emailExiste = tatuadores.find(tatuador => tatuador.email === email);
 
-    if(emailExiste)
+    if (emailExiste) {
         return res.status(400).json({ mensagem: 'E-mail já cadastrado.' });
+    }
 
     const senhaCriptografada = await bcrypt.hash(senha, 10);
 
@@ -19,28 +21,26 @@ async function cadastrarTatuador(req, res){
     res.status(201).json({ mensagem: 'Tatuador cadastrado com sucesso.' });
 }
 
-async function logarTatuador(req, res){
+export async function logarTatuador(req, res) {
     const { email, senha } = req.body;
 
-    if(!email || !senha)
+    if (!email || !senha) {
         return res.status(400).json({ mensagem: 'Preencha todos os campos obrigatórios.' });
+    }
 
     const tatuador = tatuadores.find(tatuador => tatuador.email === email);
 
-    if(!tatuador)
+    if (!tatuador) {
         return res.status(400).json({ mensagem: 'E-mail ou senha inválidos.' });
+    }
 
     const senhaValida = await bcrypt.compare(senha, tatuador.senha);
 
-    if(!senhaValida)
+    if (!senhaValida) {
         return res.status(400).json({ mensagem: 'E-mail ou senha inválidos.' });
+    }
 
     const token = jwt.sign({ id: tatuador.email }, 'secreta-chave', { expiresIn: '1h' });
 
-    res.status(200).json({token, mensagem: 'Login realizado com sucesso.' });
+    res.status(200).json({ token, mensagem: 'Login realizado com sucesso.' });
 }
-
-module.exports = {
-    cadastrarTatuador,
-    logarTatuador
-};
