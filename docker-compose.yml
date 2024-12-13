@@ -6,8 +6,8 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - /backend/usr/app
-      - /backend/usr/app/node_modules
+      - ./backend:/usr/app
+      - /usr/app/node_modules
     networks:
       - kagun-network
     environment:
@@ -17,13 +17,14 @@ services:
       - DB_PASSWORD=password
       - DB_NAME=kagun
     depends_on:
-      - database
+      database:
+        condition: service_healthy
       
   database:
     image: postgres:17
     container_name: database_kagun
     restart: always
-    ports: 
+    ports:
       - "5432:5432"
     environment:
       - POSTGRES_USER=user
@@ -33,6 +34,11 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - kagun-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:
