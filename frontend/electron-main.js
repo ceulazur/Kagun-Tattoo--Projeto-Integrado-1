@@ -20,6 +20,15 @@ function createWindow() {
     win.loadFile(path.join(__dirname, "dist", "index.html"));
   }
 
+  win.webContents.on("did-finish-load", () => {
+    win.webContents.executeJavaScript(`
+      const meta = document.createElement('meta');
+      meta.httpEquiv = 'Content-Security-Policy';
+      meta.content = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; img-src 'self' data:; connect-src 'self' http://localhost:3000";
+      document.getElementsByTagName('head')[0].appendChild(meta);
+    `);
+  });
+
   win.on("closed", () => {
     win = null;
   });

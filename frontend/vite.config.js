@@ -21,7 +21,21 @@ export default defineConfig(({ command }) => {
       },
     },
     plugins: [
-      react(),
+      react({
+        jsxRuntime: "automatic",
+        babel: {
+          plugins: [
+            [
+              "react-router",
+              {
+                future: {
+                  v7_startTransition: true,
+                },
+              },
+            ],
+          ],
+        },
+      }),
       electron({
         main: {
           entry: "electron-main.js",

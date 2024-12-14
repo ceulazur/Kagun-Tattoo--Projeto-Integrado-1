@@ -4,6 +4,7 @@ import App from "./App";
 import Footer from "./components/layout/Footer";
 import Header from "./components/layout/Header";
 import MainLayout from "./components/layout/MainLayout";
+import ProtectedRoute from "./components/ProtectedRoute";
 import Error from "./pages/Error";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -16,7 +17,7 @@ const Router = () => {
       <Header />
       <Routes>
         <Route path="/" element={<App />}>
-          <Route index element={<Home />} />
+          {/* <Route index element={<Home />} /> */}
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
           <Route path="error" element={<Error />} />
@@ -29,14 +30,16 @@ const Router = () => {
             }
           />
           {/* Rotas protegidas */}
-          {/* <Route
-            path="/protected"
+          <Route
+            index
             element={
               <ProtectedRoute>
-                <MainLayout></MainLayout>
+                <MainLayout>
+                  <Home />
+                </MainLayout>
               </ProtectedRoute>
             }
-          /> */}
+          />
         </Route>
       </Routes>
       <Footer />
