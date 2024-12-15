@@ -1,8 +1,8 @@
-import { Image, Layout, Menu, message } from "antd";
+import { ConfigProvider, Layout, Menu, message } from "antd";
 import PropTypes from "prop-types";
 import React, { useContext, useEffect, useState } from "react";
+import { BsArchive, BsCalendarWeek } from "react-icons/bs";
 import { FiLogOut } from "react-icons/fi";
-import { IoHome } from "react-icons/io5";
 import { Link, useLocation } from "react-router-dom";
 import { AuthContext } from "../../AuthContext";
 
@@ -22,8 +22,29 @@ const MenuSideBar = ({ children }) => {
   const { logout } = useContext(AuthContext);
 
   const items = [
-    getItem("Home", "1", <IoHome size={20} />, "/"),
-    // Adicione outros itens de menu aqui
+    {
+      label: "Agenda",
+      key: "1",
+      icon: <BsCalendarWeek size={20} />,
+      link: "/agenda",
+    },
+    {
+      label: "Materiais",
+      key: "2",
+      icon: <BsArchive size={20} />,
+      children: [
+        {
+          label: "Estoque",
+          key: "2-1",
+          link: "/materiais/estoque",
+        },
+        {
+          label: "Fornecedores",
+          key: "2-2",
+          link: "/materiais/fornecedores",
+        },
+      ],
+    },
   ];
 
   const [selectedKey, setSelectedKey] = useState(() => {
@@ -44,50 +65,67 @@ const MenuSideBar = ({ children }) => {
   };
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
-      <Sider
-        theme="light"
-        collapsible
-        collapsed={collapsed}
-        onCollapse={setCollapsed}
-        style={{ position: "fixed", height: "100vh" }}
-      >
-        <div className="d-flex flex-column h-100">
-          <div className="d-flex items-center justify-center pt-4 pb-4">
-            <Link to="/">
-              <Image width={collapsed ? 40 : 120} src={null} preview={false} />
-            </Link>
-          </div>
-          <Menu
-            theme="light"
-            selectedKeys={[selectedKey]}
-            mode="inline"
-            items={items}
-          />
-          <div className="mt-auto text-center">
-            {!collapsed && (
-              <>
-                <p className="m-0">User Name</p>
-              </>
-            )}
+    <ConfigProvider
+      theme={{
+        components: {
+          Menu: {
+            itemHoverBg: "var(--color-tertiary)",
+            itemSelectedBg: "var(--color-gray)",
+            itemSelectedColor: "var(--color-black)",
+          },
+        },
+      }}
+    >
+      <Layout style={{ minHeight: "100vh" }}>
+        <Sider
+          theme="light"
+          collapsible
+          collapsed={collapsed}
+          onCollapse={setCollapsed}
+          style={{ position: "fixed", height: "100vh" }}
+        >
+          <div className="d-flex flex-column h-100">
+            <div className="d-flex items-center justify-center pt-4 pb-4 w-100">
+              <Link to="/" className="d-flex items-center justify-center w-100">
+                <img
+                  width={collapsed ? 40 : 120}
+                  className="w-100 px-4"
+                  src="assets/horizontal_logo.svg"
+                  preview={false}
+                />
+              </Link>
+            </div>
             <Menu
               theme="light"
+              selectedKeys={[selectedKey]}
               mode="inline"
-              selectable={false}
-              items={[
-                {
-                  label: "Logout",
-                  key: "logout",
-                  icon: <FiLogOut size={20} />,
-                  onClick: handleLogout,
-                },
-              ]}
+              items={items}
             />
+            <div className="mt-auto text-center">
+              {!collapsed && (
+                <>
+                  <p className="m-0">User Name</p>
+                </>
+              )}
+              <Menu
+                theme="light"
+                mode="inline"
+                selectable={false}
+                items={[
+                  {
+                    label: "Logout",
+                    key: "logout",
+                    icon: <FiLogOut size={20} />,
+                    onClick: handleLogout,
+                  },
+                ]}
+              />
+            </div>
           </div>
-        </div>
-      </Sider>
-      <Layout style={{ marginLeft: collapsed ? 80 : 200 }}>{children}</Layout>
-    </Layout>
+        </Sider>
+        <Layout style={{ marginLeft: collapsed ? 80 : 200 }}>{children}</Layout>
+      </Layout>
+    </ConfigProvider>
   );
 };
 
