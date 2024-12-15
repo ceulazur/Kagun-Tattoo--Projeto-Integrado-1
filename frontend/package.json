@@ -8,10 +8,10 @@
   "author": "Danyel",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "lint": "eslint .",
-    "electron:dev": "vite build && electron .",
-    "electron:build": "electron-builder"
+    "dev:renderer": "vite --config vite.renderer.config.js",
+    "build": "vite build && vite build --config vite.renderer.config.js",
+    "start": "electron .",
+    "build:electron": "electron-builder"
   },
   "dependencies": {
     "@ant-design/pro-components": "^2.8.2",
@@ -43,22 +43,33 @@
   },
   "build": {
     "appId": "com.kagun.tattoo",
+    "productName": "Kagun Tattoo",
     "files": [
       "dist/**/*",
+      "dist-electron/**/*",
+      "package.json",
       "electron-main.js",
-      "preload.js",
-      "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
-      "!**/node_modules/.bin",
-      "!**/node_modules/**/test",
-      "!**/node_modules/**/tests"
+      "preload.js"
+    ],
+    "extraResources": [
+      {
+        "from": "bin/${os}",
+        "to": "bin",
+        "filter": [
+          "**/*"
+        ]
+      }
     ],
     "compression": "maximum",
+    "extends": null,
     "directories": {
       "buildResources": "build"
     },
     "win": {
-      "target": "nsis",
-      "executableName": "Kagun Tattoo"
+      "artifactName": "${productName}-setup-${version} portable.${ext}",
+      "target": [
+        "portable"
+      ]
     }
   }
 }

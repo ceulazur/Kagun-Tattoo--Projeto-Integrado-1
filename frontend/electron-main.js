@@ -2,23 +2,32 @@ const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
 
 function createWindow() {
+  const isDev = !app.isPackaged;
+
   let win = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
-      nodeIntegration: false,
-      contextIsolation: true,
+      preload: isDev
+        ? path.join(__dirname, "preload.js")
+        : path.join(app.getAppPath(), "dist-electron", "preload", "preload.js"),
+      nodeIntegration: false, // Disable for security reasons
+      contextIsolation: true, // Enable for security reasons
+      enableRemoteModule: false,
     },
   });
 
   win.setMenuBarVisibility(false);
 
-  if (process.env.NODE_ENV === "development") {
+  if (isDev) {
     win.loadURL("http://localhost:5173");
   } else {
-    win.loadFile(path.join(__dirname, "dist", "index.html"));
+    win.loadFile(path.join(app.getAppPath(), "dist", "index.html"));
   }
+
+  win.webContents.on("did-fail-load", (event, errorCode, errorDescription) => {
+    console.error(`Failed to load: ${errorDescription} (${errorCode})`);
+  });
 
   win.webContents.on("did-finish-load", () => {
     win.webContents.executeJavaScript(`
@@ -46,7 +55,7 @@ ipcMain.on("toMain", (event, args) => {
   event.reply("fromMain", resultado);
 });
 
-app.on("ready", createWindow);
+app.whenReady().then(createWindow);
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {

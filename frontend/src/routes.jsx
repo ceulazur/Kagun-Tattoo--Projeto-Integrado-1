@@ -10,7 +10,6 @@ import Cadastro from "./pages/Cadastro";
 import Error from "./pages/Error";
 import Estoque from "./pages/Estoque";
 import Fornecedores from "./pages/Fornecedores";
-import Home from "./pages/Home";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
@@ -38,7 +37,7 @@ const Router = () => {
             element={
               <ProtectedRoute>
                 <MainLayout>
-                  <Home />
+                  <Agenda />
                 </MainLayout>
               </ProtectedRoute>
             }

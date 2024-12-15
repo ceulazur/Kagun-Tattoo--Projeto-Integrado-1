@@ -2,7 +2,7 @@ const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("api", {
   send: (channel, data) => {
-    // Canais permitidos
+    // Allowed channels
     const validChannels = ["toMain"];
     if (validChannels.includes(channel)) {
       ipcRenderer.send(channel, data);
