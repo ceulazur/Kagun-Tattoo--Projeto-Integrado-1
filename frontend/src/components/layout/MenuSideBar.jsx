@@ -1,25 +1,20 @@
-import { ConfigProvider, Layout, Menu, message } from "antd";
+import { Breadcrumb, ConfigProvider, Layout, Menu, message } from "antd";
 import PropTypes from "prop-types";
 import React, { useContext, useEffect, useState } from "react";
 import { BsArchive, BsCalendarWeek } from "react-icons/bs";
 import { FiLogOut } from "react-icons/fi";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../AuthContext";
 
 const { Sider } = Layout;
 
-const getItem = (label, key, icon, link, children) => ({
-  label: link ? <Link to={link}>{label}</Link> : label,
-  key,
-  icon,
-  link,
-  children,
-});
-
 const MenuSideBar = ({ children }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
   const { logout } = useContext(AuthContext);
+
+  const [userName, setUserName] = useState("${userName}");
 
   const items = [
     {
@@ -47,21 +42,110 @@ const MenuSideBar = ({ children }) => {
     },
   ];
 
-  const [selectedKey, setSelectedKey] = useState(() => {
-    const currentItem = items.find((item) => item.link === location.pathname);
-    return currentItem ? currentItem.key : "1";
-  });
+  const findSelectedKey = (pathname) => {
+    for (const item of items) {
+      if (item.link === pathname) {
+        return item.key;
+      }
+      if (item.children) {
+        for (const child of item.children) {
+          if (child.link === pathname) {
+            return child.key;
+          }
+        }
+      }
+    }
+    return "1";
+  };
+
+  const findOpenKeys = (pathname) => {
+    for (const item of items) {
+      if (item.children) {
+        for (const child of item.children) {
+          if (child.link === pathname) {
+            return [item.key];
+          }
+        }
+      }
+    }
+    return [];
+  };
+
+  const [selectedKey, setSelectedKey] = useState(() =>
+    findSelectedKey(location.pathname)
+  );
+  const [openKeys, setOpenKeys] = useState(() =>
+    findOpenKeys(location.pathname)
+  );
 
   useEffect(() => {
-    const currentItem = items.find((item) => item.link === location.pathname);
-    if (currentItem) {
-      setSelectedKey(currentItem.key);
-    }
+    setSelectedKey(findSelectedKey(location.pathname));
+    setOpenKeys(findOpenKeys(location.pathname));
   }, [location.pathname]);
+
+  const handleMenuClick = ({ key }) => {
+    const item = items.find(
+      (item) =>
+        item.key === key || item.children?.find((child) => child.key === key)
+    );
+    if (item) {
+      const link =
+        item.link || item.children?.find((child) => child.key === key)?.link;
+      if (link) {
+        navigate(link);
+      }
+    }
+    setSelectedKey(key);
+  };
+
+  const handleOpenChange = (keys) => {
+    setOpenKeys(keys);
+  };
 
   const handleLogout = () => {
     message.success("Logout realizado com sucesso!");
     logout();
+  };
+
+  const pathSnippets = location.pathname.split("/").filter((i) => i);
+
+  const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+  const breadcrumbItems = [
+    <Breadcrumb.Item key="home">
+      <Link to="/">Home</Link>
+    </Breadcrumb.Item>,
+  ].concat(
+    pathSnippets.map((_, index) => {
+      const url = `/${pathSnippets.slice(0, index + 1).join("/")}`;
+      const isLast = index === pathSnippets.length - 1;
+      return (
+        <Breadcrumb.Item key={url}>
+          {isLast ? (
+            <span style={{ fontWeight: "semibold" }}>
+              {capitalize(pathSnippets[index])}
+            </span>
+          ) : (
+            <Link to={url}>{capitalize(pathSnippets[index])}</Link>
+          )}
+        </Breadcrumb.Item>
+      );
+    })
+  );
+
+  const getPageTitle = () => {
+    const currentItem = items.find(
+      (item) =>
+        item.key === selectedKey ||
+        item.children?.find((child) => child.key === selectedKey)
+    );
+    if (currentItem) {
+      const childItem = currentItem.children?.find(
+        (child) => child.key === selectedKey
+      );
+      return childItem ? childItem.label : currentItem.label;
+    }
+    return "Agenda";
   };
 
   return (
@@ -98,13 +182,16 @@ const MenuSideBar = ({ children }) => {
             <Menu
               theme="light"
               selectedKeys={[selectedKey]}
+              openKeys={openKeys}
               mode="inline"
               items={items}
+              onClick={handleMenuClick}
+              onOpenChange={handleOpenChange}
             />
             <div className="mt-auto text-center">
               {!collapsed && (
                 <>
-                  <p className="m-0">User Name</p>
+                  <p className="m-0">Olá, {userName}!</p>
                 </>
               )}
               <Menu
@@ -123,7 +210,18 @@ const MenuSideBar = ({ children }) => {
             </div>
           </div>
         </Sider>
-        <Layout style={{ marginLeft: collapsed ? 80 : 200 }}>{children}</Layout>
+        <Layout
+          style={{ marginLeft: collapsed ? 80 : 200 }}
+          className="bg-gray"
+        >
+          <div className="bg-white p-3 d-flex flex-column items-center justify-between gap-3">
+            <Breadcrumb>{breadcrumbItems}</Breadcrumb>
+            <h3>
+              Bem-vindo(a), {userName}! Aqui está seu(a) {getPageTitle()}.
+            </h3>
+          </div>
+          {children}
+        </Layout>
       </Layout>
     </ConfigProvider>
   );

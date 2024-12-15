@@ -17,7 +17,7 @@ const Login = () => {
         throw new Error("Email e senha são obrigatórios");
       }
       await login(email, password);
-      navigate("/");
+      navigate("/agenda");
     } catch (err) {
       setError("Email ou senha inválidos");
       message.error("Email ou senha inválidos");

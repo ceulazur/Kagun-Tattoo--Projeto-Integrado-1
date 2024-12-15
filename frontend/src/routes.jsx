@@ -5,11 +5,14 @@ import Footer from "./components/layout/Footer";
 import Header from "./components/layout/Header";
 import MainLayout from "./components/layout/MainLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Agenda from "./pages/Agenda";
+import Cadastro from "./pages/Cadastro";
 import Error from "./pages/Error";
+import Estoque from "./pages/Estoque";
+import Fornecedores from "./pages/Fornecedores";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
-import Register from "./pages/Register";
 
 const Router = () => {
   return (
@@ -19,7 +22,7 @@ const Router = () => {
         <Route path="/" element={<App />}>
           {/* <Route index element={<Home />} /> */}
           <Route path="login" element={<Login />} />
-          <Route path="register" element={<Register />} />
+          <Route path="register" element={<Cadastro />} />
           <Route path="error" element={<Error />} />
           <Route
             path="*"
@@ -36,6 +39,36 @@ const Router = () => {
               <ProtectedRoute>
                 <MainLayout>
                   <Home />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/agenda"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <Agenda />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/materiais/estoque"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <Estoque />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/materiais/fornecedores"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <Fornecedores />
                 </MainLayout>
               </ProtectedRoute>
             }
