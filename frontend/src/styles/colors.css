@@ -13,31 +13,31 @@
 }
 
 /* backgrounds */
-.bg-primary {
+.bg-custom-primary {
   background-color: var(--color-primary);
 }
 
-.bg-secondary {
+.bg-custom-secondary {
   background-color: var(--color-secondary);
 }
 
-.bg-tertiary {
+.bg-custom-tertiary {
   background-color: var(--color-tertiary);
 }
 
-.bg-quaternary {
+.bg-custom-quaternary {
   background-color: var(--color-quaternary);
 }
 
-.bg-hover {
+.bg-custom-hover {
   background-color: var(--color-hover);
 }
 
-.bg-black {
+.bg-custom-black {
   background-color: var(--color-black);
 }
 
-.bg-dark-gray {
+.bg-custom-dark-gray {
   background-color: var(--color-dark-gray);
 }
 

@@ -50,9 +50,9 @@ const Register = () => {
   };
 
   return (
-    <div className="d-flex align-items-center justify-content-center vh-100 w-100 bg-dark-gray">
+    <div className="d-flex align-items-center justify-content-center vh-100 w-100 bg-custom-dark-gray">
       <div
-        className="w-100 p-6 bg-quaternary rounded shadow"
+        className="w-100 p-6 bg-custom-quaternary rounded shadow"
         style={{ maxWidth: 400 }}
         loading={loading.toString()}
       >

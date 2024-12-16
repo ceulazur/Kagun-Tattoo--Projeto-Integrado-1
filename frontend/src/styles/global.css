@@ -25,4 +25,11 @@ a {
 
 button {
   cursor: pointer;
+  border: none;
+  outline: none;
+  background-color: transparent;
+}
+
+button:focus {
+  outline: none;
 }

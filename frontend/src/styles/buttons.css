@@ -51,3 +51,22 @@
 .button-hover:hover {
   opacity: 0.7;
 }
+
+.button-text-gray {
+  background-color: transparent;
+  color: var(--color-gray);
+}
+
+.button-text-gray:hover {
+  opacity: 0.7;
+}
+
+.button-text-primary {
+  background-color: transparent;
+  color: var(--color-primary);
+  text-shadow: 0 0 1px var(--color-primary);
+}
+
+.button-text-primary:hover {
+  opacity: 0.7;
+}
