@@ -4,11 +4,14 @@ import App from "./App";
 import Footer from "./components/layout/Footer";
 import Header from "./components/layout/Header";
 import MainLayout from "./components/layout/MainLayout";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Agenda from "./pages/Agenda";
+import Cadastro from "./pages/Cadastro";
 import Error from "./pages/Error";
-import Home from "./pages/Home";
+import Estoque from "./pages/Estoque";
+import Fornecedores from "./pages/Fornecedores";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
-import Register from "./pages/Register";
 
 const Router = () => {
   return (
@@ -16,9 +19,9 @@ const Router = () => {
       <Header />
       <Routes>
         <Route path="/" element={<App />}>
-          <Route index element={<Home />} />
+          {/* <Route index element={<Home />} /> */}
           <Route path="login" element={<Login />} />
-          <Route path="register" element={<Register />} />
+          <Route path="register" element={<Cadastro />} />
           <Route path="error" element={<Error />} />
           <Route
             path="*"
@@ -29,14 +32,46 @@ const Router = () => {
             }
           />
           {/* Rotas protegidas */}
-          {/* <Route
-            path="/protected"
+          <Route
+            index
             element={
               <ProtectedRoute>
-                <MainLayout></MainLayout>
+                <MainLayout>
+                  <Agenda />
+                </MainLayout>
               </ProtectedRoute>
             }
-          /> */}
+          />
+          <Route
+            path="/agenda"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <Agenda />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/materiais/estoque"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <Estoque />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/materiais/fornecedores"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <Fornecedores />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
         </Route>
       </Routes>
       <Footer />

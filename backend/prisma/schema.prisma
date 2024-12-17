@@ -1,0 +1,16 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tatuador {
+  idTatuador Int    @id @default(autoincrement())
+  cpf        String @unique
+  nome       String
+  email      String @unique
+  senha      String
+}

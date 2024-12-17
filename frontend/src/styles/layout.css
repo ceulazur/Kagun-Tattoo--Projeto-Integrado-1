@@ -1,0 +1,9 @@
+/* paddings acima de p-5(3rem-48px) */
+.p-6 {
+  padding: 4rem; /* 64px */
+}
+
+/* border-radius padrão do antd */
+.ant-rounded {
+  border-radius: 8px;
+}

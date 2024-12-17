@@ -104,10 +104,11 @@ const AuthProvider = ({ children }) => {
   }, [secretKey]);
 
   // Função para fazer login
-  const login = async (username, password) => {
+  const login = async (email, password) => {
     try {
-      const data = await loginUser(username, password);
-      if (data.success) {
+      const data = await loginUser(email, password);
+      console.log(data);
+      if (data) {
         const { token } = data;
         const encryptedToken = encryptToken(token, secretKey);
         localStorage.setItem("jwt", encryptedToken);
@@ -127,6 +128,7 @@ const AuthProvider = ({ children }) => {
   // Função para fazer logout
   const logout = () => {
     localStorage.removeItem("jwt");
+    window.location.reload();
     dispatch({ type: "LOGOUT" });
     message.success("Logout realizado com sucesso!");
   };

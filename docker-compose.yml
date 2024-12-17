@@ -1,0 +1,73 @@
+services:
+  backend:
+    container_name: back-kagun
+    build: ./backend
+    image: kagun_backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend:/usr/app
+      - /usr/app/node_modules
+    networks:
+      - kagun-network
+    environment:
+      - DB_HOST=database
+      - DB_PORT=5432
+      - DB_USER=user
+      - DB_PASSWORD=password
+      - DB_NAME=kagun
+      - DATABASE_URL=postgres://user:password@database:5432/kagun
+    depends_on:
+      database:
+        condition: service_healthy
+      
+  database:
+    image: postgres:17
+    container_name: database_kagun
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=kagun
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - kagun-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  adminer:
+    image: adminer
+    container_name: adminer_kagun
+    restart: always
+    ports:
+      - "8080:8080"
+    networks:
+      - kagun-network
+
+  
+  # frontend:
+  #   container_name: front-kagun
+  #   build: ./frontend
+  #   image: kagun_frontend
+  #   ports:
+  #     - "5173:5173"
+  #   volumes:
+  #     - ./frontend:/usr/app
+  #     - /usr/app/node_modules
+  #   networks:
+  #     - kagun-network
+  #   depends_on:
+  #     - backend
+
+volumes:
+  postgres_data:
+
+networks:
+  kagun-network:
+    driver: bridge
