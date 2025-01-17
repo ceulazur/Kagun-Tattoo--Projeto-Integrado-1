@@ -8,9 +8,20 @@ datasource db {
 }
 
 model Tatuador {
-  idTatuador Int    @id @default(autoincrement())
-  cpf        String @unique
+  idTatuador Int      @id @default(autoincrement())
+  cpf        String   @unique
   nome       String
-  email      String @unique
+  email      String   @unique
   senha      String
+  sessoes    Sessao[] // Relacionamento com as sessões
+}
+
+model Sessao {
+  idSessao    Int      @id @default(autoincrement())
+  nomeCliente String
+  data        DateTime
+  horario     DateTime
+  status      String   @default("agendada") // agendada, concluída, cancelada
+  tatuador    Tatuador @relation(fields: [idTatuador], references: [idTatuador])
+  idTatuador  Int
 }
