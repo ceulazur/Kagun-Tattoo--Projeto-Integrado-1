@@ -8,10 +8,11 @@ import {
   startOfWeek,
 } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { WEEK_DAYS } from "../../utils/constants";
 
-const MesView = ({ currentDate }) => {
+const MesView = ({ currentDate, apoointments }) => {
+  const [monthAppointments, setMonthAppointments] = useState([]);
   const start = startOfMonth(currentDate);
   const end = endOfMonth(currentDate);
 
@@ -32,6 +33,15 @@ const MesView = ({ currentDate }) => {
     }
   });
 
+  useEffect(() => {
+    const filteredAppointments = apoointments.filter(
+      (apoointment) =>
+        format(new Date(apoointment.data), "MM") === format(currentDate, "MM")
+    );
+
+    setMonthAppointments(filteredAppointments);
+  }, [apoointments, currentDate]);
+
   return (
     <div className="bg-white rounded d-flex flex-column h-100">
       <div className="d-flex w-100">
@@ -51,7 +61,7 @@ const MesView = ({ currentDate }) => {
             {week.map((day, dayIndex) => (
               <div
                 key={day}
-                className={`flex-fill text-center border-right border-bottom d-flex justify-content-center p-1
+                className={`text-center border-right border-bottom d-flex flex-column align-items-center justify-content-between p-1
                    ${
                      format(day, "MM") !== format(currentDate, "MM")
                        ? "text-muted"
@@ -59,6 +69,7 @@ const MesView = ({ currentDate }) => {
                    } `}
                 style={{
                   width: "14.28%",
+                  height: "170px",
                   borderRight: dayIndex === 6 ? "none" : "1px solid #dee2e6",
                   borderBottom:
                     index === weeks.length - 1 ? "none" : "1px solid #dee2e6",
@@ -71,6 +82,12 @@ const MesView = ({ currentDate }) => {
                 >
                   {format(day, "d", { locale: ptBR })}
                 </span>
+                {monthAppointments.map((appointment) =>
+                  format(new Date(appointment.data), "dd") ===
+                  format(day, "dd") ? (
+                    <div className="p-1 bg-red fs-6">AQUI</div>
+                  ) : null
+                )}
               </div>
             ))}
           </div>
