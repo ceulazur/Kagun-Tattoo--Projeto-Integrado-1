@@ -19,9 +19,10 @@ const mockAppointments = [
   {
     idSessao: 1,
     nomeCliente: "Alice",
-    data: new Date("2025-01-24T10:00:00"),
-    horario: new Date("2025-01-24T11:00:00"),
+    data: new Date("2025-01-26T10:00:00"),
+    horario: new Date("2025-01-26T11:00:00"),
     status: "agendada",
+    termino: new Date("2025-01-26T13:00:00"),
     tatuador: {
       idTatuador: 1,
       nome: "Tatuador 1",
@@ -30,9 +31,10 @@ const mockAppointments = [
   {
     idSessao: 2,
     nomeCliente: "Bob",
-    data: new Date("2025-01-24T12:00:00"),
-    horario: new Date("2025-01-02T13:00:00"),
+    data: new Date("2025-01-26T12:00:00"),
+    horario: new Date("2025-01-26T13:00:00"),
     status: "concluída",
+    termino: new Date("2025-01-26T16:30:00"),
     tatuador: {
       idTatuador: 2,
       nome: "Tatuador 2",
@@ -40,32 +42,11 @@ const mockAppointments = [
   },
   {
     idSessao: 3,
-    nomeCliente: "Bob",
-    data: new Date("2025-01-24T12:00:00"),
-    horario: new Date("2025-01-02T13:00:00"),
+    nomeCliente: "Jonh",
+    data: new Date("2025-01-27T12:00:00"),
+    horario: new Date("2025-01-27T08:00:00"),
     status: "concluída",
-    tatuador: {
-      idTatuador: 2,
-      nome: "Tatuador 2",
-    },
-  },
-  {
-    idSessao: 4,
-    nomeCliente: "Bob",
-    data: new Date("2025-01-24T12:00:00"),
-    horario: new Date("2025-01-02T13:00:00"),
-    status: "concluída",
-    tatuador: {
-      idTatuador: 2,
-      nome: "Tatuador 2",
-    },
-  },
-  {
-    idSessao: 5,
-    nomeCliente: "Bob",
-    data: new Date("2025-01-24T12:00:00"),
-    horario: new Date("2025-01-02T13:00:00"),
-    status: "concluída",
+    termino: new Date("2025-01-27T09:30:00"),
     tatuador: {
       idTatuador: 2,
       nome: "Tatuador 2",
