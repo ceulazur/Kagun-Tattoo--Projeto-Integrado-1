@@ -39,6 +39,7 @@ const MesView = ({ currentDate, apoointments }) => {
         format(new Date(apoointment.data), "MM") === format(currentDate, "MM")
     );
 
+    console.log(filteredAppointments);
     setMonthAppointments(filteredAppointments);
   }, [apoointments, currentDate]);
 
@@ -61,7 +62,7 @@ const MesView = ({ currentDate, apoointments }) => {
             {week.map((day, dayIndex) => (
               <div
                 key={day}
-                className={`text-center border-right border-bottom d-flex flex-column align-items-center justify-content-between p-1
+                className={`text-center border-right border-bottom d-flex flex-column align-items-center justify-content-between p-1 
                    ${
                      format(day, "MM") !== format(currentDate, "MM")
                        ? "text-muted"
@@ -76,18 +77,26 @@ const MesView = ({ currentDate, apoointments }) => {
                 }}
               >
                 <span
-                  className={` d-flex p-1 rounded-circle aspect-ratio-1  justify-content-center align-items-center
+                  className={` d-flex p-1 rounded-circle aspect-ratio-1  justify-content-center align-items-center 
                     ${isToday(day) ? "bg-custom-primary text-white" : ""}`}
                   style={{ width: "32px", height: "32px" }}
                 >
                   {format(day, "d", { locale: ptBR })}
                 </span>
-                {monthAppointments.map((appointment) =>
-                  format(new Date(appointment.data), "dd") ===
-                  format(day, "dd") ? (
-                    <div className="p-1 bg-red fs-6">AQUI</div>
-                  ) : null
-                )}
+                <div
+                  className="d-flex flex-column align-items-center  w-100"
+                  style={{ overflow: "auto" }}
+                >
+                  {monthAppointments.map((appointment) =>
+                    format(new Date(appointment.data), "dd") ===
+                    format(day, "dd") ? (
+                      <div className="bg-custom-primary px-2 py-1 fs-6 display-flex flex-column justify-content-center text-left w-100 rounded text-white mb-1">
+                        <p>{appointment?.nomeCliente}</p>
+                        {/* {appointment?.horario.toLocaleTimeString()} */}
+                      </div>
+                    ) : null
+                  )}
+                </div>
               </div>
             ))}
           </div>
