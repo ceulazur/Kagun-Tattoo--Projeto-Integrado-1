@@ -70,3 +70,12 @@
 .button-text-primary:hover {
   opacity: 0.7;
 }
+
+.button-icon {
+  background-color: transparent;
+}
+
+.button-icon:hover {
+  opacity: 0.5;
+  cursor: pointer;
+}

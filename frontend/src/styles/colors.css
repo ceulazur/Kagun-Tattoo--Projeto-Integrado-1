@@ -37,6 +37,14 @@
   background-color: var(--color-black);
 }
 
+.bg-custom-light-gray {
+  background-color: var(--color-light-gray);
+}
+
+.bg-custom-gray {
+  background-color: var(--color-gray);
+}
+
 .bg-custom-dark-gray {
   background-color: var(--color-dark-gray);
 }

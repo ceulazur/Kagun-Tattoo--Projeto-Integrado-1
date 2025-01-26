@@ -10,9 +10,13 @@ import {
 import { ptBR } from "date-fns/locale";
 import React, { useEffect, useState } from "react";
 import { WEEK_DAYS } from "../../utils/constants";
+import CalendarPopUp from "./modals/CalendarPopUp";
 
 const MesView = ({ currentDate, apoointments }) => {
   const [monthAppointments, setMonthAppointments] = useState([]);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [openPopUp, setOpenPopUp] = useState(false);
+  const [popUpCoordinates, setPopUpCoordinates] = useState(null);
   const start = startOfMonth(currentDate);
   const end = endOfMonth(currentDate);
 
@@ -39,12 +43,17 @@ const MesView = ({ currentDate, apoointments }) => {
         format(new Date(apoointment.data), "MM") === format(currentDate, "MM")
     );
 
-    console.log(filteredAppointments);
     setMonthAppointments(filteredAppointments);
   }, [apoointments, currentDate]);
 
   return (
     <div className="bg-white rounded d-flex flex-column h-100">
+      <CalendarPopUp
+        coordinates={popUpCoordinates}
+        openPopUp={openPopUp}
+        setOpenPopUp={setOpenPopUp}
+        appointment={selectedAppointment}
+      />
       <div className="d-flex w-100">
         {weekDays.map((day) => (
           <div
@@ -83,6 +92,7 @@ const MesView = ({ currentDate, apoointments }) => {
                 >
                   {format(day, "d", { locale: ptBR })}
                 </span>
+
                 <div
                   className="d-flex flex-column align-items-center  w-100"
                   style={{ overflow: "auto" }}
@@ -90,9 +100,22 @@ const MesView = ({ currentDate, apoointments }) => {
                   {monthAppointments.map((appointment) =>
                     format(new Date(appointment.data), "dd") ===
                     format(day, "dd") ? (
-                      <div className="bg-custom-primary px-2 py-1 fs-6 display-flex flex-column justify-content-center text-left w-100 rounded text-white mb-1">
+                      <div
+                        key={appointment.id}
+                        className="button button-primary text-left mb-1"
+                        style={{
+                          cursor: "pointer",
+                        }}
+                        onClick={(e) => {
+                          setSelectedAppointment(appointment);
+                          setPopUpCoordinates({
+                            x: e.clientX,
+                            y: e.clientY,
+                          });
+                          setOpenPopUp(true);
+                        }}
+                      >
                         <p>{appointment?.nomeCliente}</p>
-                        {/* {appointment?.horario.toLocaleTimeString()} */}
                       </div>
                     ) : null
                   )}
