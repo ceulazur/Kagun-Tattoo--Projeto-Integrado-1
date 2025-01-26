@@ -83,6 +83,7 @@ const Agenda = () => {
 
   useEffect(() => {
     localStorage.setItem("agendaView", view);
+    setAppointments(mockAppointments);
   }, [view]);
 
   const handleDateChange = (operation) => {
