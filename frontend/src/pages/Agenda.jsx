@@ -13,15 +13,18 @@ import { BsChevronLeft, BsChevronRight, BsPlus } from "react-icons/bs";
 import DiaView from "../components/agenda/DiaView";
 import MesView from "../components/agenda/MesView";
 import SemanaView from "../components/agenda/SemanaView";
+import NovoAgendamentoModal from "../components/agenda/NovoAgendamentoModal";
 
 const Agenda = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const [view, setView] = useState(() => {
-    return localStorage.getItem("agendaView") || "month";
-  });
-  const [currentDate, setCurrentDate] = useState(new Date());
+    return localStorage.getItem("agendaView") || "month"
+  })
+  const [currentDate, setCurrentDate] = useState(new Date())
+  const [agendamentos, setAgendamentos] = useState([])
 
   useEffect(() => {
-    localStorage.setItem("agendaView", view);
+    localStorage.setItem("agendaView", view)
   }, [view]);
 
   const handleDateChange = (operation) => {
@@ -39,7 +42,18 @@ const Agenda = () => {
     };
     const selectedOperation = operationMap[operation][view];
     setCurrentDate(selectedOperation(currentDate, 1));
-  };
+  }
+
+  const handleSaveAgendamento = (novoAgendamento) => {
+    try {
+      // Chamar a API aqui
+      setAgendamentos([...agendamentos, novoAgendamento])
+      message.success("Agendamento salvo com sucesso!")
+      setIsModalOpen(false)
+    } catch (error) {
+      message.error("Erro ao salvar o agendamento. Tente novamente.")
+    }
+  }
 
   const capitalizeFirstLetter = (string) =>
     string.charAt(0).toUpperCase() + string.slice(1);
@@ -96,10 +110,14 @@ const Agenda = () => {
           </button>
         </div>
         <span className="border"></span>
-        <div className="d-flex align-items-center justify-content-around w-50 pl-3">
-          <button className="button button-primary w-100">
-            <BsPlus size={24} /> Novo agendamento
+        <div>
+          <button className="button button-primary w-100" onClick={() => setIsModalOpen(true)}>
+          <BsPlus size={24} /> Novo agendamento
           </button>
+          <NovoAgendamentoModal 
+          isModalOpen={isModalOpen} 
+          handleClose={() => setIsModalOpen(false)}
+          handleSave={handleSaveAgendamento} />
         </div>
       </section>
 

@@ -1,81 +1,69 @@
-import { Form, Input, DatePicker, TimePicker, Modal, message, Button } from "antd";
-import { useState } from "react";
-import moment from "moment";
+import React from "react"
+import { Modal, Form, Input, DatePicker, TimePicker, InputNumber } from "antd"
+import { set } from "date-fns"
 
-function NovoAgendamentoModal() {
-    const [isModalVisible, setIsModalVisible] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [form] = Form.useForm();
+function NovoAgendamentoModal({ isModalOpen, handleClose, handleSave }) {
+  const [form] = Form.useForm()
 
-    const showModal = () => {
-        setIsModalVisible(true);
-    };
+  const onFinish = async (values) => {
+    const { nome, data, hora, duracao } = values
+    const dataHora = set(data.toDate(), {
+      hours: hora.hour(),
+      minutes: hora.minute(),
+      seconds: 0,
+    })
+    
+    handleOk({ nome, dataHora, duracao })
+  }
 
-    const handleCancel = () => {
-        setIsModalVisible(false);
-        form.resetFields();
-    };
+  const onFinishFailed = (errorInfo) => {
+    console.log("Failed:", errorInfo)
+  }
 
-    const onFinish = async (e) => {
-        try {
-            setLoading(true);
-            const { nome, data, hora, duracao } = values;
+  return (
+    <Modal title="Novo Agendamento" open={isModalOpen} onCancel={handleClose} footer={null}>
+      <Form form={form} name="novoAgendamento" onFinish={onFinish} onFinishFailed={onFinishFailed} layout="vertical">
+        <Form.Item
+          name="nome"
+          label="Nome do Agendamento"
+          rules={[{ required: true, message: "Por favor, insira o nome do agendamento!" }]}
+        >
+          <Input />
+        </Form.Item>
 
-            if (!nome || !data || !hora || !duracao) {
-                throw new Error("Todos os campos são obrigatórios");
-            }
+        <Form.Item name="data" label="Data" rules={[{ required: true, message: "Por favor, selecione a data!" }]}>
+          <DatePicker style={{ width: "100%" }} />
+        </Form.Item>
 
-            const dataHora = moment(data).set({
-                hour: hora.hour(),
-                minute: hora.minute(),
-                second: 0,
-            });
+        <Form.Item name="hora" label="Hora" rules={[{ required: true, message: "Por favor, selecione a hora!" }]}>
+          <TimePicker style={{ width: "100%" }} format="HH:mm" />
+        </Form.Item>
 
-            message.success("Agendamento criado com sucesso!");
-            handleCancel();
-        } catch (err) {
-            message.error(err.message || "Erro ao criar agendamento");
-        } finally {
-            setLoading(false);
-        }
-    };
+        <Form.Item
+          name="duracao"
+          label="Duração Estimada (horas)"
+          rules={[
+            { required: true, message: "Por favor, insira a duração estimada!" },
+            { type: "number", min: 0.5, max: 24, message: "A duração deve ser entre 0.5 e 24 horas!" },
+          ]}
+        >
+          <InputNumber
+            min={0.5}
+            max={24}
+            step={0.5}
+            style={{ width: "100%" }}
+            placeholder="Ex: 1.5 para 1 hora e 30 minutos"
+          />
+        </Form.Item>
 
-    return (
-        <>
-            <Button type="primary" onClick={showModal}>
-                Novo Agendamento
-            </Button>
-            <Modal title="Novo Agendamento" visible={isModalVisible} onCancel={handleCancel} footer={null}>
-                <Form form={form} name="novoAgendamento" onFinish={onFinish} layout="vertical">
-                    <Form.Item
-                        name="nome"
-                        label="Nome do Agendamento"
-                        rules={[{ required: true, message: "Por favor, insira o nome do agendamento!" }]}
-                    >
-                        <Input />
-                    </Form.Item>
-                    <Form.Item name="data" label="Data" rules={[{ required: true, message: "Selecione a data!" }]}>
-                        <DatePicker style={{ width: "100%" }} />
-                    </Form.Item>
-                    <Form.Item name="hora" label="Hora" rules={[{ required: true, message: "Selecione a hora!" }]}>
-                        <TimePicker style={{ width: "100%" }} format="HH:mm" />
-                    </Form.Item>
-                    <Form.Item
-                        name="duracao"
-                        label="Duração Estimada (minutos)"
-                        rules={[{ required: true, message: "Insira a duração estimada!" }]}
-                    >
-                        <Input type="number" />
-                    </Form.Item>
-                    <Form.Item>
-                        <Button type="primary" htmlType="submit" loading={loading} block>
-                            Criar Agendamento
-                        </Button>
-                    </Form.Item>
-                </Form>
-            </Modal>
-        </>
-    );
+        <Form.Item>
+          <button type="submit" className="button button-primary w-100">
+            Salvar Agendamento
+          </button>
+        </Form.Item>
+      </Form>
+    </Modal>
+  )
 }
 
 export default NovoAgendamentoModal
