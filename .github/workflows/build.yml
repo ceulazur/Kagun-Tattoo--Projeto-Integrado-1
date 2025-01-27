@@ -62,7 +62,9 @@ jobs:
         working-directory: frontend
 
       - name: Zip artifact
-        run: zip -r electron-app.zip dist/
+        run: |
+          Compress-Archive -Path dist/* -DestinationPath electron-app.zip
+        shell: pwsh
         working-directory: frontend
 
       - name: Create GitHub Release
