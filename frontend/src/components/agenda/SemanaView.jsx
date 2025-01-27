@@ -11,7 +11,12 @@ import React, { useEffect, useState } from "react";
 import { HOURS, WEEK_DAYS } from "../../utils/constants";
 import CalendarPopUp from "./modals/CalendarPopUp";
 
-const SemanaView = ({ currentDate, appointments }) => {
+const SemanaView = ({
+  currentDate,
+  appointments,
+  handleEdit,
+  handleDelete,
+}) => {
   const [weekAppointments, setWeekAppointments] = useState([]);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [openPopUp, setOpenPopUp] = useState(false);
@@ -47,6 +52,8 @@ const SemanaView = ({ currentDate, appointments }) => {
         openPopUp={openPopUp}
         setOpenPopUp={setOpenPopUp}
         appointment={selectedAppointment}
+        handleEdit={handleEdit}
+        handleDelete={handleDelete}
       />
       <div className="d-flex w-100">
         <div

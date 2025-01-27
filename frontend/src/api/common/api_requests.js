@@ -94,3 +94,4 @@ export const getMethodWithParams = (url, params) =>
   request("get", url, null, params);
 export const putMethod = (url, entity) => request("put", url, entity);
 export const deleteMethod = (url) => request("delete", url);
+export const deleteMethodWithBody = (url, data) => request("delete", url, data);

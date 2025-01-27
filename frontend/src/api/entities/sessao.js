@@ -1,5 +1,5 @@
 import {
-  deleteMethod,
+  deleteMethodWithBody,
   getMethod,
   postMethod,
   putMethod,
@@ -28,7 +28,7 @@ export const agendarSessao = async (sessaoData) => {
 
 export const reagendarSessao = async (sessaoData) => {
   try {
-    const response = await putMethod(URLS.REAGENDAR_SESSAO, sessaoData);
+    const response = await putMethod(`${URLS.REAGENDAR_SESSAO}`, sessaoData);
     return response;
   } catch (error) {
     console.error("Erro ao reagendar sessão:", error);
@@ -38,7 +38,12 @@ export const reagendarSessao = async (sessaoData) => {
 
 export const cancelarSessao = async (sessaoId) => {
   try {
-    const response = await deleteMethod(`${URLS.CANCELAR_SESSAO}/${sessaoId}`);
+    console.log("Cancelando sessão com ID:", {
+      idSessao: sessaoId,
+    });
+    const response = await deleteMethodWithBody(URLS.CANCELAR_SESSAO, {
+      idSessao: sessaoId,
+    });
     return response;
   } catch (error) {
     console.error("Erro ao cancelar sessão:", error);

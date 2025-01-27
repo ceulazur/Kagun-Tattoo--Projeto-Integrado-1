@@ -6,6 +6,8 @@ const CalendarPopUp = ({
   openPopUp,
   setOpenPopUp,
   appointment,
+  handleEdit,
+  handleDelete,
 }) => {
   const popUpRef = useRef(null);
 
@@ -37,8 +39,22 @@ const CalendarPopUp = ({
       >
         <div className="w-100 justify-content-end align-items-center d-flex mb-2">
           <div className="d-flex gap-3">
-            <BsTrash size={16} className="button-icon" />
-            <BsPencil size={16} className="button-icon" />
+            <BsTrash
+              size={16}
+              className="button-icon"
+              onClick={() => {
+                handleDelete(appointment);
+                setOpenPopUp(false);
+              }}
+            />
+            <BsPencil
+              size={16}
+              className="button-icon"
+              onClick={() => {
+                handleEdit(appointment);
+                setOpenPopUp(false);
+              }}
+            />
             <BsXLg
               size={16}
               className="button-icon"

@@ -11,10 +11,17 @@ import {
 import { ptBR } from "date-fns/locale";
 import React, { useEffect, useState } from "react";
 import { BsChevronLeft, BsChevronRight, BsPlus } from "react-icons/bs";
-import { agendarSessao, listarSessoes } from "../api/entities/sessao";
+import {
+  agendarSessao,
+  listarSessoes,
+  reagendarSessao,
+  cancelarSessao,
+} from "../api/entities/sessao";
 import DiaView from "../components/agenda/DiaView";
 import MesView from "../components/agenda/MesView";
+import EditarAgendamentoModal from "../components/agenda/modals/EditarAgendamentoModal";
 import NovoAgendamentoModal from "../components/agenda/modals/NovoAgendamentoModal";
+import DeletarAgendamentoModal from "../components/agenda/modals/DeletarAgendamentoModal";
 import SemanaView from "../components/agenda/SemanaView";
 
 const mockAppointments = [
@@ -63,6 +70,9 @@ const Agenda = () => {
   });
   const [currentDate, setCurrentDate] = useState(new Date());
   const [appointments, setAppointments] = useState([]);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const handleGetAgendamentos = async () => {
     try {
@@ -128,6 +138,35 @@ const Agenda = () => {
       } else {
         message.error("Erro ao salvar o agendamento. Tente novamente.");
       }
+    }
+  };
+
+  const handleEditAgendamento = (appointment) => {
+    setSelectedAppointment(appointment);
+    setIsEditModalOpen(true);
+  };
+
+  const handleUpdateAgendamento = async (updatedAgendamento) => {
+    try {
+      const response = await reagendarSessao(updatedAgendamento);
+      if (response.status === 200) {
+        message.success("Agendamento atualizado com sucesso!");
+        handleGetAgendamentos();
+      }
+    } catch (error) {
+      message.error("Erro ao atualizar o agendamento. Tente novamente.");
+    }
+  };
+
+  const handleDeleteAgendamento = async (appointmentId) => {
+    try {
+      const response = await cancelarSessao(appointmentId);
+      if (response.status === 200) {
+        message.success("Agendamento deletado com sucesso!");
+        handleGetAgendamentos();
+      }
+    } catch (error) {
+      message.error("Erro ao deletar o agendamento. Tente novamente.");
     }
   };
 
@@ -200,15 +239,51 @@ const Agenda = () => {
         handleClose={() => setIsModalOpen(false)}
         handleSave={handleSaveAgendamento}
       />
+      <EditarAgendamentoModal
+        isVisible={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        agendamento={selectedAppointment}
+        onUpdate={handleUpdateAgendamento}
+      />
+      <DeletarAgendamentoModal
+        isVisible={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        appointment={selectedAppointment}
+        onDelete={handleDeleteAgendamento}
+      />
 
       {view === "month" && (
-        <MesView currentDate={currentDate} appointments={appointments} />
+        <MesView
+          currentDate={currentDate}
+          appointments={appointments}
+          handleEdit={handleEditAgendamento}
+          handleDelete={(appointment) => {
+            setSelectedAppointment(appointment);
+            setIsDeleteModalOpen(true);
+          }}
+        />
       )}
       {view === "week" && (
-        <SemanaView currentDate={currentDate} appointments={appointments} />
+        <SemanaView
+          currentDate={currentDate}
+          appointments={appointments}
+          handleEdit={handleEditAgendamento}
+          handleDelete={(appointment) => {
+            setSelectedAppointment(appointment);
+            setIsDeleteModalOpen(true);
+          }}
+        />
       )}
       {view === "day" && (
-        <DiaView currentDate={currentDate} appointments={appointments} />
+        <DiaView
+          currentDate={currentDate}
+          appointments={appointments}
+          handleEdit={handleEditAgendamento}
+          handleDelete={(appointment) => {
+            setSelectedAppointment(appointment);
+            setIsDeleteModalOpen(true);
+          }}
+        />
       )}
     </div>
   );

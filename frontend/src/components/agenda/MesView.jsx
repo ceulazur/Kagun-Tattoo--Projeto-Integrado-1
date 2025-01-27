@@ -12,7 +12,7 @@ import React, { useEffect, useState } from "react";
 import { WEEK_DAYS } from "../../utils/constants";
 import CalendarPopUp from "./modals/CalendarPopUp";
 
-const MesView = ({ currentDate, appointments }) => {
+const MesView = ({ currentDate, appointments, handleEdit, handleDelete }) => {
   const [monthAppointments, setMonthAppointments] = useState([]);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [openPopUp, setOpenPopUp] = useState(false);
@@ -57,6 +57,8 @@ const MesView = ({ currentDate, appointments }) => {
         openPopUp={openPopUp}
         setOpenPopUp={setOpenPopUp}
         appointment={selectedAppointment}
+        handleEdit={handleEdit}
+        handleDelete={handleDelete}
       />
       <div className="d-flex w-100">
         {weekDays.map((day) => (
