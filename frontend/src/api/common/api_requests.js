@@ -3,7 +3,7 @@ import CryptoJS from "crypto-js";
 
 // Função para descriptografar token
 const decryptToken = (encryptedToken) => {
-  const secretKey = process.env.TOKEN_CRIP_APP_SECRET_KEY;
+  const secretKey = import.meta.env.VITE_SECRET_KEY;
   const bytes = CryptoJS.AES.decrypt(encryptedToken, secretKey);
   return bytes.toString(CryptoJS.enc.Utf8);
 };
@@ -32,6 +32,15 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Função para detectar se está rodando no Electron
+function isElectron() {
+  return !!(
+    navigator &&
+    navigator.userAgent &&
+    navigator.userAgent.indexOf("Electron") !== -1
+  );
+}
+
 // Função para lidar com erros
 const handleError = (error) => {
   console.error("Erro Inesperado: ", error);
@@ -40,14 +49,18 @@ const handleError = (error) => {
     // Verifica se o erro é de resposta da API
     if (error.response) {
       // Se o status for 401 (não autorizado), limpa o localStorage e redireciona para login
-      if (error.response.status === 401) {
-        localStorage.clear();
-        window.location.href = "/login";
-      } else {
-        // Loga outros erros de resposta
-        console.error(`Erro ${error.response.status}: ${error.response.data}`);
+      if (!isElectron()) {
+        if (error.response.status === 401) {
+          localStorage.clear();
+          window.location.href = "/login";
+        } else {
+          // Loga outros erros de resposta
+          console.error(
+            `Erro ${error.response.status}: ${error.response.data}`
+          );
+        }
       }
-    } else if (error.code === "ERR_NETWORK") {
+    } else if (!isElectron() && error.code === "ERR_NETWORK") {
       // Lida com erros de rede
       console.error("Erro de rede:", error);
       window.location.href = "/error";
@@ -55,7 +68,10 @@ const handleError = (error) => {
   } else {
     // Lida com outros tipos de erros
     console.error("Erro ao conectar com o servidor. Verifique sua conexão.");
-    window.location.href = "/error";
+    console.log(error);
+    if (!isElectron()) {
+      window.location.href = "/error";
+    }
   }
 
   throw error;
