@@ -67,10 +67,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GHCR_PAT }}
         with:
-          tag_name: ${{ github.sha }}
-          release_name: Release ${{ github.sha }}
+          tag_name: v1.0-${{ github.sha }}
+          release_name: Release v1.0-${{ github.sha }}
           body: |
-            Release notes for ${{ github.sha }}
+            Release notes for v1.0-${{ github.sha }}
           draft: false
           prerelease: false
 
