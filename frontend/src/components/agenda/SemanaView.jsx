@@ -35,7 +35,7 @@ const SemanaView = ({
       const filteredAppointments = appointments.filter((appointment) => {
         const appointmentDate = new Date(appointment.horario);
         return (
-          format(appointmentDate, "MM") === format(currentDate, "MM") &&
+          // format(appointmentDate, "MM") === format(currentDate, "MM") &&
           format(appointmentDate, "yyyy") === format(currentDate, "yyyy")
         );
       });
