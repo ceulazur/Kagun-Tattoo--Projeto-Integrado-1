@@ -96,6 +96,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GHCR_PAT }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: frontend/dist-electron/win-unpacked/kagun-tattoo-setup.exe
+          asset_path: frontend/dist/Kagun\ Tattoo-setup-0.0.0\ portable.exe
           asset_name: kagun-tattoo-setup.exe
           asset_content_type: application/vnd.microsoft.portable-executable
