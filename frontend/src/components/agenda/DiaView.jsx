@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { HOURS, WEEK_DAYS } from "../../utils/constants";
 import CalendarPopUp from "./modals/CalendarPopUp";
 
-const DiaView = ({ currentDate, appointments }) => {
+const DiaView = ({ currentDate, appointments, handleEdit, handleDelete }) => {
   const [dayAppointments, setDayAppointments] = useState([]);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [openPopUp, setOpenPopUp] = useState(false);
@@ -34,6 +34,8 @@ const DiaView = ({ currentDate, appointments }) => {
         openPopUp={openPopUp}
         setOpenPopUp={setOpenPopUp}
         appointment={selectedAppointment}
+        handleEdit={handleEdit}
+        handleDelete={handleDelete}
       />
       <div className="d-flex w-100 border-bottom py-1">
         <div className="text-center fw-bold fs-7 mx-2">

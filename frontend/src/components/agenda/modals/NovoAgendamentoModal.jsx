@@ -8,7 +8,6 @@ import {
   TimePicker,
   message,
 } from "antd";
-import { format, set } from "date-fns";
 import React from "react";
 
 function NovoAgendamentoModal({ isModalOpen, handleClose, handleSave }) {
@@ -16,11 +15,7 @@ function NovoAgendamentoModal({ isModalOpen, handleClose, handleSave }) {
 
   const onFinish = async (values) => {
     const { nomeCliente, data, hora, idTatuador } = values;
-    const dataHora = set(data.toDate(), {
-      hours: hora.hour(),
-      minutes: hora.minute(),
-      seconds: 0,
-    });
+    const dataHora = data.hour(hora.hour()).minute(hora.minute()).second(0);
 
     if (hora.hour() < 8 || hora.hour() > 18) {
       throw new Error("Os agendamentos devem ser entre 08:00 e 18:00.");
@@ -28,8 +23,8 @@ function NovoAgendamentoModal({ isModalOpen, handleClose, handleSave }) {
 
     const novoAgendamento = {
       nomeCliente,
-      data: format(dataHora, "yyyy-MM-dd"),
-      horario: format(dataHora, "HH:mm"),
+      data: dataHora.format("YYYY-MM-DD"),
+      horario: dataHora.format("HH:mm"),
       idTatuador,
     };
 

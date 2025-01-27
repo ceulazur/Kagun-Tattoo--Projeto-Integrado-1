@@ -8,20 +8,19 @@ import {
   TimePicker,
   message,
 } from "antd";
-import moment from "moment";
-import { useEffect, useState } from "react";
+import dayjs from "dayjs";
+import React, { useEffect } from "react";
 
 function EditarAgendamentoModal({ isVisible, onClose, agendamento, onUpdate }) {
-  const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
 
   useEffect(() => {
     if (isVisible && agendamento) {
       form.setFieldsValue({
-        nome: agendamento.nome,
-        data: moment(agendamento.data),
-        hora: moment(agendamento.hora, "HH:mm"),
-        duracao: agendamento.duracao,
+        nomeCliente: agendamento.nomeCliente,
+        data: agendamento.data ? dayjs(agendamento.data) : null,
+        hora: agendamento.horario ? dayjs(agendamento.horario) : null,
+        idTatuador: agendamento.idTatuador,
       });
     }
   }, [isVisible, agendamento, form]);
@@ -32,29 +31,24 @@ function EditarAgendamentoModal({ isVisible, onClose, agendamento, onUpdate }) {
   };
 
   const onFinish = async (values) => {
-    try {
-      setLoading(true);
-      const { nome, data, hora, duracao } = values;
+    const { nomeCliente, data, hora, idTatuador } = values;
+    const dataHora = data.hour(hora.hour()).minute(hora.minute()).second(0);
 
-      const dataHora = moment(data).set({
-        hour: hora.hour(),
-        minute: hora.minute(),
-        second: 0,
-      });
-
-      if (hora.hour() < 8 || hora.hour() > 18) {
-        throw new Error("Os agendamentos devem ser entre 08:00 e 18:00.");
-      }
-
-      await onUpdate({ ...agendamento, nome, data: dataHora, duracao });
-
-      message.success("Agendamento atualizado com sucesso!");
-      handleCancel();
-    } catch (error) {
-      message.error(error.message || "Erro ao atualizar agendamento.");
-    } finally {
-      setLoading(false);
+    if (hora.hour() < 8 || hora.hour() > 18) {
+      throw new Error("Os agendamentos devem ser entre 08:00 e 18:00.");
     }
+
+    const updatedAgendamento = {
+      ...agendamento,
+      nomeCliente,
+      data: dataHora.format("YYYY-MM-DD"),
+      horario: dataHora.format("HH:mm"),
+      idTatuador,
+    };
+
+    await onUpdate(updatedAgendamento);
+    message.success("Agendamento atualizado com sucesso!");
+    handleCancel();
   };
 
   const onFinishFailed = (errorInfo) => {
@@ -66,7 +60,7 @@ function EditarAgendamentoModal({ isVisible, onClose, agendamento, onUpdate }) {
   return (
     <Modal
       title="Editar Agendamento"
-      visible={isVisible}
+      open={isVisible}
       onCancel={handleCancel}
       footer={null}
       centered
@@ -79,29 +73,33 @@ function EditarAgendamentoModal({ isVisible, onClose, agendamento, onUpdate }) {
         layout="vertical"
       >
         <Form.Item
-          name="nome"
-          label="Nome do Agendamento"
+          name="nomeCliente"
+          label="Nome do Cliente"
           rules={[
             {
               required: true,
-              message: "Por favor, insira o nome do agendamento!",
+              message: "Por favor, insira o nome do cliente!",
             },
           ]}
+          className="mb-2"
         >
           <Input />
         </Form.Item>
+
         <Form.Item
           name="data"
           label="Data"
-          rules={[{ required: true, message: "Selecione a data!" }]}
+          rules={[{ required: true, message: "Por favor, selecione a data!" }]}
+          className="mb-2"
         >
           <DatePicker style={{ width: "100%" }} />
         </Form.Item>
+
         <Form.Item
           name="hora"
           label="Hora"
           rules={[
-            { required: true, message: "Selecione a hora!" },
+            { required: true, message: "Por favor, selecione a hora!" },
             {
               validator: (_, value) =>
                 value && (value.hour() < 8 || value.hour() > 18)
@@ -111,18 +109,27 @@ function EditarAgendamentoModal({ isVisible, onClose, agendamento, onUpdate }) {
                   : Promise.resolve(),
             },
           ]}
+          className="mb-2"
         >
           <TimePicker style={{ width: "100%" }} format="HH:mm" />
         </Form.Item>
+
         <Form.Item
-          name="duracao"
-          label="Duração Estimada (minutos)"
-          rules={[{ required: true, message: "Insira a duração estimada!" }]}
+          name="idTatuador"
+          label="ID do Tatuador"
+          rules={[
+            {
+              required: true,
+              message: "Por favor, insira o ID do tatuador!",
+            },
+          ]}
+          className="mb-2"
         >
-          <InputNumber min={1} max={1440} step={1} style={{ width: "100%" }} />
+          <InputNumber style={{ width: "100%" }} />
         </Form.Item>
+
         <Form.Item>
-          <Button type="primary" htmlType="submit" loading={loading} block>
+          <Button type="primary" htmlType="submit" block>
             Atualizar Agendamento
           </Button>
         </Form.Item>
