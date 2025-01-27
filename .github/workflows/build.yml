@@ -64,9 +64,10 @@ jobs:
         working-directory: frontend
 
       - name: Create GitHub Release
+        if: github.event_name == 'push' || github.event_name == 'pull_request'
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
@@ -76,9 +77,10 @@ jobs:
           prerelease: false
 
       - name: Upload Release Asset
+        if: github.event_name == 'push' || github.event_name == 'pull_request'
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: frontend/dist/
@@ -86,9 +88,10 @@ jobs:
           asset_content_type: application/zip
 
       - name: Upload Executable
+        if: github.event_name == 'push' || github.event_name == 'pull_request'
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: frontend/dist-electron/win-unpacked/
