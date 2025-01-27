@@ -31,18 +31,6 @@ jobs:
           docker build -t ghcr.io/danyelgranzotti/kagun_backend:latest -f backend/Dockerfile backend
           docker push ghcr.io/danyelgranzotti/kagun_backend:latest
 
-      - name: Build and push frontend image
-        run: |
-          docker build -t ghcr.io/danyelgranzotti/kagun_frontend:latest -f frontend/Dockerfile frontend
-          docker push ghcr.io/danyelgranzotti/kagun_frontend:latest
-
-      - name: Build frontend with Docker
-        run: |
-          docker build -t frontend-build -f frontend/Dockerfile.build frontend
-          docker create --name extract frontend-build
-          docker cp extract:/usr/app/dist ./frontend/dist
-          docker rm -f extract
-
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
