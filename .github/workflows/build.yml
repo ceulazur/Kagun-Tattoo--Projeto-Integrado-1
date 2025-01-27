@@ -23,15 +23,18 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+        working-directory: frontend
 
       - name: Build the app
         run: npm run build
+        working-directory: frontend
 
       - name: Package the app
         run: npm run package
+        working-directory: frontend
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: electron-app
-          path: dist/
+          path: frontend/dist/
