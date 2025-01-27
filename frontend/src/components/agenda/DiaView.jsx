@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { HOURS, WEEK_DAYS } from "../../utils/constants";
 import CalendarPopUp from "./modals/CalendarPopUp";
 
-const DiaView = ({ currentDate, apoointments }) => {
+const DiaView = ({ currentDate, appointments }) => {
   const [dayAppointments, setDayAppointments] = useState([]);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [openPopUp, setOpenPopUp] = useState(false);
@@ -16,14 +16,16 @@ const DiaView = ({ currentDate, apoointments }) => {
   const dayOfWeek = weekDays[dayOfWeekIndex];
 
   useEffect(() => {
-    const filteredAppointments = apoointments.filter(
-      (appointment) =>
-        format(new Date(appointment.data), "yyyy-MM-dd") ===
+    const filteredAppointments = appointments.filter((appointment) => {
+      const appointmentDate = new Date(appointment.horario);
+      return (
+        format(appointmentDate, "yyyy-MM-dd") ===
         format(currentDate, "yyyy-MM-dd")
-    );
+      );
+    });
 
     setDayAppointments(filteredAppointments);
-  }, [apoointments, currentDate]);
+  }, [appointments, currentDate]);
 
   return (
     <div className="bg-white rounded d-flex flex-column h-100">
@@ -34,7 +36,7 @@ const DiaView = ({ currentDate, apoointments }) => {
         appointment={selectedAppointment}
       />
       <div className="d-flex w-100 border-bottom py-1">
-        <div className=" text-center fw-bold fs-7 mx-2">
+        <div className="text-center fw-bold fs-7 mx-2">
           <div>{dayOfWeek}</div>
           <div
             className={`d-flex p-1 rounded-circle aspect-ratio-1 justify-content-center align-items-center 
@@ -60,8 +62,9 @@ const DiaView = ({ currentDate, apoointments }) => {
             >
               <div className="d-flex flex-column align-items-center w-100">
                 {dayAppointments.map((appointment) => {
+                  const appointmentDate = new Date(appointment.horario);
                   const appointmentHourMatches =
-                    format(appointment.horario, "HH") == hour;
+                    appointmentDate.getUTCHours() === parseInt(hour, 10);
 
                   if (appointmentHourMatches) {
                     const duration = appointment.termino
@@ -70,6 +73,7 @@ const DiaView = ({ currentDate, apoointments }) => {
                           new Date(appointment.horario)
                         )
                       : 1;
+
                     return (
                       <div
                         key={appointment.id}
@@ -77,11 +81,11 @@ const DiaView = ({ currentDate, apoointments }) => {
                         style={{
                           cursor: "pointer",
                           zIndex: 10,
-                          marginTop: "5px",
+                          marginTop: "2px",
                           minHeight:
                             duration / 60 > 1
-                              ? (70 * duration) / 60 - 5 + "px"
-                              : "70px",
+                              ? (70 * duration) / 60 - 2 + "px"
+                              : "68px",
                         }}
                         onClick={(e) => {
                           setSelectedAppointment(appointment);
@@ -93,7 +97,11 @@ const DiaView = ({ currentDate, apoointments }) => {
                         }}
                       >
                         <p>{appointment?.nomeCliente}</p>
-                        {appointment?.horario.toLocaleTimeString()}
+                        {appointmentDate.toLocaleTimeString("pt-BR", {
+                          timeZone: "UTC",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
                       </div>
                     );
                   }

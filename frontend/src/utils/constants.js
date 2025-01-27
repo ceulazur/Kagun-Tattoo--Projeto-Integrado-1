@@ -7,4 +7,4 @@ export const WEEK_DAYS = [
   "SEX.",
   "SÁB.",
 ];
-export const HOURS = Array.from({ length: 12 }, (_, i) => i + 8); // 08h às 19h
+export const HOURS = Array.from({ length: 12 }, (_, i) => i + 8);

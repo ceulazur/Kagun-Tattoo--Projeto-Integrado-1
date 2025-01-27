@@ -11,7 +11,7 @@ import {
 import { ptBR } from "date-fns/locale";
 import React, { useEffect, useState } from "react";
 import { BsChevronLeft, BsChevronRight, BsPlus } from "react-icons/bs";
-import { listarSessoes } from "../api/entities/sessao";
+import { agendarSessao, listarSessoes } from "../api/entities/sessao";
 import DiaView from "../components/agenda/DiaView";
 import MesView from "../components/agenda/MesView";
 import NovoAgendamentoModal from "../components/agenda/modals/NovoAgendamentoModal";
@@ -42,6 +42,7 @@ const mockAppointments = [
       nome: "Tatuador 2",
     },
   },
+
   {
     idSessao: 3,
     nomeCliente: "Jonh",
@@ -61,21 +62,32 @@ const Agenda = () => {
     return localStorage.getItem("agendaView") || "month";
   });
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [agendamentos, setAgendamentos] = useState([]);
-  const [apoointments, setAppointments] = useState(mockAppointments);
+  const [appointments, setAppointments] = useState([]);
 
   const handleGetAgendamentos = async () => {
     try {
-      const response = await listarSessoes();
-      console.log("Agendamentos carregados:", response);
+      const response = await listarSessoes(); // Aguarda a resposta da função listarSessoes
+      console.log("Agendamentos carregados com sucesso:", response.sessoes);
+
+      // Transforma as sessões para incluir o campo 'termino' com o mesmo valor de 'horario'
+      const appointmentsWithTermino = response.sessoes.map((sessao) => ({
+        ...sessao,
+        termino: sessao.horario, // 'termino' recebe o mesmo valor de 'horario'
+      }));
+
+      console.log(
+        "Agendamentos com termino carregados com sucesso:",
+        appointmentsWithTermino
+      );
+
+      setAppointments(appointmentsWithTermino); // Atualiza o estado com os agendamentos transformados
     } catch (error) {
-      message.error("Erro ao carregar os agendamentos. Tente novamente.");
+      message.error("Erro ao carregar os agendamentos. Tente novamente."); // Exibe mensagem de erro em caso de falha
     }
   };
 
   useEffect(() => {
     localStorage.setItem("agendaView", view);
-    setAppointments(mockAppointments);
     handleGetAgendamentos();
   }, [view]);
 
@@ -96,13 +108,26 @@ const Agenda = () => {
     setCurrentDate(selectedOperation(currentDate, 1));
   };
 
-  const handleSaveAgendamento = (novoAgendamento) => {
+  const handleSaveAgendamento = async (novoAgendamento) => {
     try {
-      setAgendamentos([...agendamentos, novoAgendamento]);
-      message.success("Agendamento salvo com sucesso!");
+      const response = await agendarSessao(novoAgendamento);
+      console.log("response", response);
+      if (response.status == 201) {
+        message.success("Agendamento salvo com sucesso!");
+      }
+      handleGetAgendamentos();
       setIsModalOpen(false);
     } catch (error) {
-      message.error("Erro ao salvar o agendamento. Tente novamente.");
+      console.error(error.response.data.mensagem);
+      if (
+        error.response.data.mensagem === "Já existe uma sessão nesse horário."
+      ) {
+        message.error(
+          "Já existe uma sessão nesse horário. Por favor, escolha outro horário."
+        );
+      } else {
+        message.error("Erro ao salvar o agendamento. Tente novamente.");
+      }
     }
   };
 
@@ -177,13 +202,13 @@ const Agenda = () => {
       />
 
       {view === "month" && (
-        <MesView currentDate={currentDate} apoointments={apoointments} />
+        <MesView currentDate={currentDate} appointments={appointments} />
       )}
       {view === "week" && (
-        <SemanaView currentDate={currentDate} apoointments={apoointments} />
+        <SemanaView currentDate={currentDate} appointments={appointments} />
       )}
       {view === "day" && (
-        <DiaView currentDate={currentDate} apoointments={apoointments} />
+        <DiaView currentDate={currentDate} appointments={appointments} />
       )}
     </div>
   );

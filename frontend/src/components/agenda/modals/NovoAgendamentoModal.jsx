@@ -8,30 +8,32 @@ import {
   TimePicker,
   message,
 } from "antd";
-import { set } from "date-fns";
+import { format, set } from "date-fns";
 import React from "react";
 
 function NovoAgendamentoModal({ isModalOpen, handleClose, handleSave }) {
   const [form] = Form.useForm();
 
   const onFinish = async (values) => {
-    try {
-      const { nome, data, hora, duracao } = values;
-      const dataHora = set(data.toDate(), {
-        hours: hora.hour(),
-        minutes: hora.minute(),
-        seconds: 0,
-      });
+    const { nomeCliente, data, hora, idTatuador } = values;
+    const dataHora = set(data.toDate(), {
+      hours: hora.hour(),
+      minutes: hora.minute(),
+      seconds: 0,
+    });
 
-      if (hora.hour() < 8 || hora.hour() > 18) {
-        throw new Error("Os agendamentos devem ser entre 08:00 e 18:00.");
-      }
-
-      handleSave({ nome, dataHora, duracao });
-      message.success("Agendamento salvo com sucesso!");
-    } catch (error) {
-      message.error(error.message || "Erro ao salvar agendamento.");
+    if (hora.hour() < 8 || hora.hour() > 18) {
+      throw new Error("Os agendamentos devem ser entre 08:00 e 18:00.");
     }
+
+    const novoAgendamento = {
+      nomeCliente,
+      data: format(dataHora, "yyyy-MM-dd"),
+      horario: format(dataHora, "HH:mm"),
+      idTatuador,
+    };
+
+    await handleSave(novoAgendamento);
   };
 
   const onFinishFailed = (errorInfo) => {
@@ -56,12 +58,12 @@ function NovoAgendamentoModal({ isModalOpen, handleClose, handleSave }) {
         layout="vertical"
       >
         <Form.Item
-          name="nome"
-          label="Nome do Agendamento"
+          name="nomeCliente"
+          label="Nome do Cliente"
           rules={[
             {
               required: true,
-              message: "Por favor, insira o nome do agendamento!",
+              message: "Por favor, insira o nome do cliente!",
             },
           ]}
           className="mb-2"
@@ -98,29 +100,17 @@ function NovoAgendamentoModal({ isModalOpen, handleClose, handleSave }) {
         </Form.Item>
 
         <Form.Item
-          name="duracao"
-          label="Duração Estimada (horas)"
+          name="idTatuador"
+          label="ID do Tatuador"
           rules={[
             {
               required: true,
-              message: "Por favor, insira a duração estimada!",
-            },
-            {
-              type: "number",
-              min: 0.5,
-              max: 24,
-              message: "A duração deve ser entre 0.5 e 24 horas!",
+              message: "Por favor, insira o ID do tatuador!",
             },
           ]}
           className="mb-2"
         >
-          <InputNumber
-            min={0.5}
-            max={24}
-            step={0.5}
-            style={{ width: "100%" }}
-            placeholder="Ex: 1.5 para 1 hora e 30 minutos"
-          />
+          <InputNumber style={{ width: "100%" }} />
         </Form.Item>
 
         <Form.Item>
