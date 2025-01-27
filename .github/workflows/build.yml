@@ -61,6 +61,10 @@ jobs:
         run: npm run package
         working-directory: frontend
 
+      - name: Zip artifact
+        run: zip -r electron-app.zip dist/
+        working-directory: frontend
+
       - name: Create GitHub Release
         id: create_release
         uses: actions/create-release@v1
@@ -80,7 +84,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GHCR_PAT }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: frontend/dist/
+          asset_path: frontend/electron-app.zip
           asset_name: electron-app.zip
           asset_content_type: application/zip
 
