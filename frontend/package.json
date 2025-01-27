@@ -71,7 +71,7 @@
       "buildResources": "build"
     },
     "win": {
-      "artifactName": "${productName}-setup-${version} portable.${ext}",
+      "artifactName": "kagun-tattoo-setup.exe",
       "target": [
         "portable"
       ]
