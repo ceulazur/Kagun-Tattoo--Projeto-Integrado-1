@@ -46,6 +46,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: frontend
+
+      - name: Build the app
+        run: npm run build
+        working-directory: frontend
+
+      - name: Package the app
+        run: npm run package
+        working-directory: frontend
+
       - name: Create GitHub Release
         uses: actions/create-release@v1
         env:
@@ -67,3 +84,13 @@ jobs:
           asset_path: frontend/dist/
           asset_name: electron-app.zip
           asset_content_type: application/zip
+
+      - name: Upload Executable
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: frontend/dist-electron/win-unpacked/
+          asset_name: kagun-tattoo-setup.exe
+          asset_content_type: application/vnd.microsoft.portable-executable
