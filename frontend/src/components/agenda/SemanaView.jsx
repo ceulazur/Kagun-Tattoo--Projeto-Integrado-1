@@ -33,7 +33,6 @@ const SemanaView = ({ currentDate, apoointments }) => {
       );
     });
 
-    console.log("filteredAppointments", filteredAppointments);
     setWeekAppointments(filteredAppointments);
   }, [apoointments, currentDate]);
 
@@ -96,14 +95,6 @@ const SemanaView = ({ currentDate, apoointments }) => {
                       format(day, "yyyy-MM-dd");
                     const appointmentHourMatches =
                       format(appointment.horario, "HH") == hour;
-                    console.log(
-                      "appointmentHourMatches",
-                      appointmentHourMatches +
-                        "appointmentHour: " +
-                        format(appointment.horario, "HH") +
-                        " HOUR: " +
-                        hour
-                    );
 
                     if (appointmentDayMatches && appointmentHourMatches) {
                       const duration = appointment.termino

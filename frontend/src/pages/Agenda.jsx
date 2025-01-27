@@ -1,3 +1,4 @@
+import { message } from "antd";
 import {
   addDays,
   addMonths,
@@ -10,9 +11,10 @@ import {
 import { ptBR } from "date-fns/locale";
 import React, { useEffect, useState } from "react";
 import { BsChevronLeft, BsChevronRight, BsPlus } from "react-icons/bs";
+import { listarSessoes } from "../api/entities/sessao";
 import DiaView from "../components/agenda/DiaView";
 import MesView from "../components/agenda/MesView";
-import NovoAgendamentoModal from "../components/agenda/NovoAgendamentoModal";
+import NovoAgendamentoModal from "../components/agenda/modals/NovoAgendamentoModal";
 import SemanaView from "../components/agenda/SemanaView";
 
 const mockAppointments = [
@@ -62,9 +64,19 @@ const Agenda = () => {
   const [agendamentos, setAgendamentos] = useState([]);
   const [apoointments, setAppointments] = useState(mockAppointments);
 
+  const handleGetAgendamentos = async () => {
+    try {
+      const response = await listarSessoes();
+      console.log("Agendamentos carregados:", response);
+    } catch (error) {
+      message.error("Erro ao carregar os agendamentos. Tente novamente.");
+    }
+  };
+
   useEffect(() => {
     localStorage.setItem("agendaView", view);
     setAppointments(mockAppointments);
+    handleGetAgendamentos();
   }, [view]);
 
   const handleDateChange = (operation) => {
@@ -86,7 +98,6 @@ const Agenda = () => {
 
   const handleSaveAgendamento = (novoAgendamento) => {
     try {
-      // Chamar a API aqui
       setAgendamentos([...agendamentos, novoAgendamento]);
       message.success("Agendamento salvo com sucesso!");
       setIsModalOpen(false);
@@ -150,20 +161,20 @@ const Agenda = () => {
           </button>
         </div>
         <span className="border"></span>
-        <div>
+        <div className="d-flex align-items-center justify-content-around w-50 pl-3">
           <button
             className="button button-primary w-100"
             onClick={() => setIsModalOpen(true)}
           >
             <BsPlus size={24} /> Novo agendamento
           </button>
-          <NovoAgendamentoModal
-            isModalOpen={isModalOpen}
-            handleClose={() => setIsModalOpen(false)}
-            handleSave={handleSaveAgendamento}
-          />
         </div>
       </section>
+      <NovoAgendamentoModal
+        isModalOpen={isModalOpen}
+        handleClose={() => setIsModalOpen(false)}
+        handleSave={handleSaveAgendamento}
+      />
 
       {view === "month" && (
         <MesView currentDate={currentDate} apoointments={apoointments} />

@@ -107,7 +107,6 @@ const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const data = await loginUser(email, password);
-      console.log(data);
       if (data) {
         const { token } = data;
         const encryptedToken = encryptToken(token, secretKey);
