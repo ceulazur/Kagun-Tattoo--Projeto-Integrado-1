@@ -20,7 +20,6 @@ function EditarAgendamentoModal({ isVisible, onClose, agendamento, onUpdate }) {
         nomeCliente: agendamento.nomeCliente,
         data: agendamento.data ? dayjs(agendamento.data) : null,
         hora: agendamento.horario ? dayjs(agendamento.horario) : null,
-        idTatuador: agendamento.idTatuador,
       });
     }
   }, [isVisible, agendamento, form]);
@@ -31,7 +30,7 @@ function EditarAgendamentoModal({ isVisible, onClose, agendamento, onUpdate }) {
   };
 
   const onFinish = async (values) => {
-    const { nomeCliente, data, hora, idTatuador } = values;
+    const { nomeCliente, data, hora } = values;
     const dataHora = data.hour(hora.hour()).minute(hora.minute()).second(0);
 
     if (hora.hour() < 8 || hora.hour() > 18) {
@@ -43,7 +42,7 @@ function EditarAgendamentoModal({ isVisible, onClose, agendamento, onUpdate }) {
       nomeCliente,
       data: dataHora.format("YYYY-MM-DD"),
       horario: dataHora.format("HH:mm"),
-      idTatuador,
+      idTatuador: 1,
     };
 
     await onUpdate(updatedAgendamento);
@@ -112,20 +111,6 @@ function EditarAgendamentoModal({ isVisible, onClose, agendamento, onUpdate }) {
           className="mb-2"
         >
           <TimePicker style={{ width: "100%" }} format="HH:mm" />
-        </Form.Item>
-
-        <Form.Item
-          name="idTatuador"
-          label="ID do Tatuador"
-          rules={[
-            {
-              required: true,
-              message: "Por favor, insira o ID do tatuador!",
-            },
-          ]}
-          className="mb-2"
-        >
-          <InputNumber style={{ width: "100%" }} />
         </Form.Item>
 
         <Form.Item>
