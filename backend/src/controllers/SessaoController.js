@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { DateTime } from 'luxon';
 
 const prisma = new PrismaClient();
 
@@ -11,55 +12,55 @@ class SessaoController {
             const filtros = {};
 
             // Filtra por período (dia, semana, mês, ano)
+            // Filtra por período
             if (periodo) {
-                const dataAtual = new Date();
-                if (periodo === 'dia') {
-                    filtros.data = {
-                        gte: new Date(dataAtual.setHours(0, 0, 0, 0)), // Início do dia
-                        lt: new Date(dataAtual.setHours(23, 59, 59, 999)), // Fim do dia
-                    };
-                } else if (periodo === 'semana') {
-                    const primeiroDiaSemana = new Date(dataAtual.setDate(dataAtual.getDate() - dataAtual.getDay()));
-                    const ultimoDiaSemana = new Date(primeiroDiaSemana);
-                    ultimoDiaSemana.setDate(primeiroDiaSemana.getDate() + 6);
+                const dataAtual = DateTime.now();
 
-                    filtros.data = {
-                        gte: new Date(primeiroDiaSemana.setHours(0, 0, 0, 0)),
-                        lt: new Date(ultimoDiaSemana.setHours(23, 59, 59, 999)),
-                    };
-                } else if (periodo === 'mes') {
-                    const inicioMes = new Date(dataAtual.getFullYear(), dataAtual.getMonth(), 1);
-                    const fimMes = new Date(dataAtual.getFullYear(), dataAtual.getMonth() + 1, 0);
+                switch (periodo) {
+                    case 'dia':
+                        filtros.dataHorario = {
+                            gte: dataAtual.startOf('day').toJSDate(),
+                            lt: dataAtual.endOf('day').toJSDate(),
+                        };
+                        break;
 
-                    filtros.data = {
-                        gte: new Date(inicioMes.setHours(0, 0, 0, 0)),
-                        lt: new Date(fimMes.setHours(23, 59, 59, 999)),
-                    };
-                } else if (periodo === 'ano') {
-                    const inicioAno = new Date(dataAtual.getFullYear(), 0, 1);
-                    const fimAno = new Date(dataAtual.getFullYear(), 11, 31);
+                    case 'semana':
+                        filtros.dataHorario = {
+                            gte: dataAtual.startOf('week').toJSDate(),
+                            lt: dataAtual.endOf('week').toJSDate(),
+                        };
+                        break;
 
-                    filtros.data = {
-                        gte: new Date(inicioAno.setHours(0, 0, 0, 0)),
-                        lt: new Date(fimAno.setHours(23, 59, 59, 999)),
-                    };
+                    case 'mes':
+                        filtros.dataHorario = {
+                            gte: dataAtual.startOf('month').toJSDate(),
+                            lt: dataAtual.endOf('month').toJSDate(),
+                        };
+                        break;
+
+                    case 'ano':
+                        filtros.dataHorario = {
+                            gte: dataAtual.startOf('year').toJSDate(),
+                            lt: dataAtual.endOf('year').toJSDate(),
+                        };
+                        break;
+
+                    default:
+                        return res.status(400).json({ mensagem: 'Período inválido.' });
                 }
             }
 
-            // Filtra por status (opcional)
-            if (status) {
-                filtros.status = status;
-            }
+            // Filtra por status
+            if (status) filtros.status = status;
 
-            // Filtra por idTatuador (opcional)
-            if (idTatuador) {
-                filtros.idTatuador = Number(idTatuador);
-            }
+            // Filtra pelo id do tatuador
+            if (idTatuador) filtros.idTatuador = Number(idTatuador);
 
-            // Busca no banco de dados com os filtros
+            // Busca no banco com os filtros
             const sessoes = await prisma.sessao.findMany({
                 where: filtros,
-                orderBy: { data: 'asc' }, // Ordena por data em ordem crescente
+                include: { cliente: true, tatuador: true },
+                orderBy: { dataHorario: 'asc' },
             });
 
             return res.status(200).json({ sessoes });
@@ -71,23 +72,27 @@ class SessaoController {
 
     async agendarSessao(req, res) {
         try {
-            const { nomeCliente, data, horario, idTatuador } = req.body;
+            const { idCliente, idTatuador, dataHorario } = req.body;
 
-            // Validar se a data é no futuro
-            const dataHora = new Date(`${data}T${horario}`);
-            if (dataHora <= new Date())
+            // Validação de campos obrigatórios
+            if(!idCliente || !idTatuador || !dataHorario)
+                return res.status(400).json({ mensagem: 'Preencha todos os campos obrigatórios.' })
+
+            // Valida se a data é no futuro
+            const dataHora = DateTime.fromISO(dataHorario);
+            if (dataHora <= DateTime.now())
                 return res.status(400).json({ mensagem: 'Data e horário devem ser no futuro.' });
 
-            // Verificar conflitos de horário
+            // Verifica conflitos de horário
             const conflito = await prisma.sessao.findFirst({
-                where: { data: dataHora, idTatuador },
+                where: { dataHorario: dataHora.toJSDate(), idTatuador },
             });
             if (conflito)
                 return res.status(400).json({ mensagem: 'Já existe uma sessão nesse horário.' });
 
-            // Criar a sessão
+            // Cria a sessão
             const sessao = await prisma.sessao.create({
-                data: { nomeCliente, data: dataHora, horario: dataHora, idTatuador },
+                data: { idCliente, idTatuador, dataHorario: dataHora.toJSDate() },
             });
 
             return res.status(201).json({ mensagem: 'Sessão agendada com sucesso.', sessao });
@@ -99,27 +104,34 @@ class SessaoController {
 
     async reagendarSessao(req, res) {
         try {
-            const { idSessao, novaData, novoHorario } = req.body;
+            const { idSessao, novaDataHorario } = req.body;
 
-            const sessao = await prisma.sessao.findUnique({ where: { idSessao } });
+            // Busca a sessão existente
+            const sessao = await prisma.sessao.findUnique({ where: { id: idSessao } });
 
             if (!sessao)
                 return res.status(404).json({ mensagem: 'Sessão não encontrada.' });
 
-            if (new Date(sessao.data) <= new Date())
+            // Valida se a sessão é passada
+            const dataHoraAtual = DateTime.fromJSDate(sessao.dataHorario);
+            if (dataHoraAtual <= DateTime.now())
                 return res.status(400).json({ mensagem: 'Não é possível reagendar sessões passadas.' });
 
-            // Validar novo horário
-            const novoDataHora = new Date(`${novaData}T${novoHorario}`);
+            // Valida o novo horário
+            const novoDataHora = DateTime.fromISO(novaDataHorario);
+            if (novoDataHora <= DateTime.now())
+                return res.status(400).json({ mensagem: 'O novo horário deve ser no futuro.' });
+
             const conflito = await prisma.sessao.findFirst({
-                where: { data: novoDataHora, idTatuador: sessao.idTatuador },
+                where: { dataHorario: novoDataHora.toJSDate(), idTatuador: sessao.idTatuador },
             });
             if (conflito)
                 return res.status(400).json({ mensagem: 'Conflito com outra sessão.' });
 
+            // Atualiza a sessão
             const sessaoAtualizada = await prisma.sessao.update({
-                where: { idSessao },
-                data: { data: novoDataHora, horario: novoDataHora },
+                where: { id: idSessao },
+                data: { dataHorario: novoDataHora.toJSDate() },
             });
 
             return res.status(200).json({ mensagem: 'Sessão reagendada com sucesso.', sessaoAtualizada });
@@ -130,22 +142,26 @@ class SessaoController {
     }
 
     async cancelarSessao(req, res) {
-        const { idSessao } = req.body;
-
         try {
-            const sessao = await prisma.sessao.findUnique({ where: { idSessao } });
+            const { idSessao } = req.body;
 
-            if (!sessao) return res.status(404).json({ mensagem: 'Sessão não encontrada.' });
+            // Busca a sessão existente
+            const sessao = await prisma.sessao.findUnique({ where: { id: idSessao } });
 
-            if (new Date(sessao.data) <= new Date())
+            if (!sessao)
+                return res.status(404).json({ mensagem: 'Sessão não encontrada.' });
+
+            // Valida se a sessão já foi cancelada ou é passada
+            const dataHoraAtual = DateTime.fromJSDate(sessao.dataHorario);
+            if (dataHoraAtual <= DateTime.now())
                 return res.status(400).json({ mensagem: 'Não é possível cancelar sessões passadas.' });
 
-            if (sessao.status === 'cancelada') {
+            if (sessao.status === 'cancelada')
                 return res.status(400).json({ mensagem: 'Essa sessão já foi cancelada.' });
-            }
 
+            // Cancela a sessão
             const sessaoCancelada = await prisma.sessao.update({
-                where: { idSessao },
+                where: { id: idSessao },
                 data: { status: 'cancelada' },
             });
 
