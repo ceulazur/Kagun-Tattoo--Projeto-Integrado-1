@@ -1,6 +1,7 @@
 import Service from './Service.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
+import { jwtSecret } from '../config/config.js';
 
 class AuthService extends Service {
     constructor(){
@@ -36,7 +37,7 @@ class AuthService extends Service {
         // Gerando o Token JWT
         const token = jwt.sign(
             { id: tatuador.id },
-            process.env.JWT_SECRET || 'secreta-chave',
+            jwtSecret,
             { expiresIn: '1h' }
         );
 
