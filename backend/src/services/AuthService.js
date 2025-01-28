@@ -1,15 +1,17 @@
-import { PrismaClient } from '@prisma/client';
+import Service from './Service.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
-const prisma = new PrismaClient();
+class AuthService extends Service {
+    constructor(){
+        super('tatuador');
+    }
 
-class AuthService {
     async cadastrarTatuador({ cpf, nome, email, telefone, senha }){
         // Verificando se o email, CPF ou telefone já estão cadastrados
-        const cpfExiste      = await prisma.tatuador.findUnique( { where: { cpf }      });
-        const emailExiste    = await prisma.tatuador.findUnique( { where: { email }    });
-        const telefoneExiste = await prisma.tatuador.findUnique( { where: { telefone } });
+        const cpfExiste      = await this.buscarRegistroPorCampo({ cpf });
+        const emailExiste    = await this.buscarRegistroPorCampo({ email });
+        const telefoneExiste = await this.buscarRegistroPorCampo({ telefone });
 
         if (cpfExiste)      throw new Error('CPF já cadastrado.');      
         if (emailExiste)    throw new Error('E-mail já cadastrado.');
@@ -19,14 +21,12 @@ class AuthService {
         const senhaCriptografada = await bcrypt.hash(senha, 10);
 
         // Criando o tatuador no banco
-        return await prisma.tatuador.create({
-            data: { cpf, nome, email, telefone, senha: senhaCriptografada }
-        });
+        return this.criarNovoRegistro({ cpf, nome, email, telefone, senha: senhaCriptografada });
     }
 
     async logarTatuador({ email, senha }){
         // Buscando o tatuador pelo email
-        const tatuador = await prisma.tatuador.findUnique({ where: { email } });
+        const tatuador = await this.buscarRegistroPorCampo({ email });
         if(!tatuador) throw new Error('E-mail ou senha inválidos.');
 
         // Verificando a senha
