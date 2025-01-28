@@ -7,18 +7,20 @@ const prisma = new PrismaClient();
 class AuthController {
     async cadastrarTatuador(req, res){
         try {
-            const { cpf, nome, email, senha } = req.body;
+            const { cpf, nome, email, telefone, senha } = req.body;
 
             // Verificando se os dados foram informados
-            if (!cpf || !nome || !email || !senha)
+            if (!cpf || !nome || !email || !telefone || !senha)
                 return res.status(400).json({ mensagem: 'Preencha todos os campos obrigatórios.' });
 
             // Verificando se o email ou CPF já existe no banco
-            const emailExiste = await prisma.tatuador.findUnique({ where: { email } });
-            const cpfExiste = await prisma.tatuador.findUnique({ where: { cpf } });
+            const cpfExiste      = await prisma.tatuador.findUnique( { where: { cpf }      });
+            const emailExiste    = await prisma.tatuador.findUnique( { where: { email }    });
+            const telefoneExiste = await prisma.tatuador.findUnique( { where: { telefone } });
 
-            if(emailExiste || cpfExiste)
-                return res.status(400).json({ mensagem: 'E-mail ou CPF já cadastrado.' });
+            if (cpfExiste)      return res.status(400).json({ mensagem: 'CPF já cadastrado.'      });
+            if (emailExiste)    return res.status(400).json({ mensagem: 'E-mail já cadastrado.'   });
+            if (telefoneExiste) return res.status(400).json({ mensagem: 'Telefone já cadastrado.' });
 
             // Criptografando a senha
             const senhaCriptografada = await bcrypt.hash(senha, 10);
@@ -29,6 +31,7 @@ class AuthController {
                     cpf,
                     nome,
                     email,
+                    telefone,
                     senha: senhaCriptografada
                 }
             });
@@ -61,11 +64,15 @@ class AuthController {
                 return res.status(400).json({ mensagem: 'E-mail ou senha inválidos.' });
 
             // Gerando o Token JWT
-            const token = jwt.sign({ id: tatuador.idTatuador }, process.env.JWT_SECRET || 'secreta-chave', { expiresIn: '1h' });
+            const token = jwt.sign(
+                { id: tatuador.id },
+                process.env.JWT_SECRET || 'secreta-chave',
+                { expiresIn: '1h' }
+            );
 
             return res.status(200).json({ token, mensagem: 'Login realizado com sucesso.' });
         } catch (erro) {
-            console.error(error);
+            console.error(erro);
             return res.status(500).json({ mensagem: 'Erro ao realizar login.' });
         }
     }
