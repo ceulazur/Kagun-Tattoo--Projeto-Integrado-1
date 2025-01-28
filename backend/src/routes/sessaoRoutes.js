@@ -3,10 +3,10 @@ import SessaoController from '../controllers/SessaoController.js';
 
 const router = express.Router();
 
-router.post('/agendar',    SessaoController.agendarSessao);
+router.post('/agendar',    SessaoController.agendar);
 router.get('/listar',      SessaoController.listarSessoes);
-router.get('/:idSessao',   SessaoController.listarSessaoPorId);
-router.put('/reagendar',   SessaoController.atualizarSessao);
-router.delete('/cancelar', SessaoController.cancelarSessao);
+router.get('/:id',         SessaoController.buscarPorId);
+router.put('/reagendar',   SessaoController.atualizar);
+router.delete('/cancelar', SessaoController.cancelar);
 
 export default router;

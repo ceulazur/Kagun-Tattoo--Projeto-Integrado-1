@@ -7,19 +7,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum StatusSessao {
-  agendada
-  concluida
-  cancelada
-}
-
 model Tatuador {
-  id       Int      @id @default(autoincrement())
-  nome     String
   cpf      String   @unique
+  nome     String
   email    String   @unique
-  telefone String   @unique
   senha    String
+  id       Int      @id @default(autoincrement())
+  telefone String   @unique
   sessoes  Sessao[]
 }
 
@@ -31,12 +25,18 @@ model Cliente {
 }
 
 model Sessao {
-  id          Int          @id @default(autoincrement())
+  idTatuador  Int
   dataHorario DateTime
+  id          Int          @id @default(autoincrement())
+  idCliente   Int
   termino     DateTime?
   status      StatusSessao @default(agendada)
-  tatuador    Tatuador     @relation(fields: [idTatuador], references: [id])
-  idTatuador  Int
   cliente     Cliente      @relation(fields: [idCliente], references: [id])
-  idCliente   Int
+  tatuador    Tatuador     @relation(fields: [idTatuador], references: [id])
+}
+
+enum StatusSessao {
+  agendada
+  concluida
+  cancelada
 }
