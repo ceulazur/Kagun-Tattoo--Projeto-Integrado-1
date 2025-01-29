@@ -15,7 +15,10 @@ class SessaoController extends Controller {
 
     async agendar(req, res) {
         try {
-            const sessao = await this.service.agendarSessao(req.body);
+            const { idCliente, dataHorario } = req.body;
+            const idTatuador = req.usuario.idTatuador; // Pegando do token
+
+            const sessao = await this.service.agendarSessao({ idCliente, idTatuador, dataHorario });
             return res.status(201).json({ mensagem: 'Sessão agendada com sucesso.', sessao });
         } catch (erro) {
             return res.status(400).json({ mensagem: erro.message });
