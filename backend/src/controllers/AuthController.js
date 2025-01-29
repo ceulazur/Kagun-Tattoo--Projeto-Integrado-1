@@ -17,6 +17,7 @@ class AuthController extends Controller {
     async cadastrar(req, res){
         try {
             const tatuador = await this.service.cadastrarTatuador(req.body);
+
             return res.status(201).json({ mensagem: 'Tatuador cadastrado com sucesso.', tatuador });
         } catch (erro) {
             return res.status(400).json({ mensagem: erro.message });
@@ -26,6 +27,7 @@ class AuthController extends Controller {
     async login(req, res){
         try {
             const { token, tatuador } = await this.service.logarTatuador(req.body);
+            
             return res.status(200).json({ token, mensagem: 'Login realizado com sucesso.', tatuador });
         } catch (erro) {
             return res.status(400).json({ mensagem: erro.message });
