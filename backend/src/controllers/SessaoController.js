@@ -27,7 +27,7 @@ class SessaoController extends Controller {
 
     async listarSessoes(req, res) {
         try {
-            const sessoes = await this.service.listarSessoes(req.query);
+            const sessoes = await this.service.listarSessoes(req.filtros, req.paginacao);
             return res.status(200).json(sessoes);
         } catch (erro) {
             return res.status(400).json({ mensagem: erro.message });

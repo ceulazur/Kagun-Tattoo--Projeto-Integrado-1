@@ -1,5 +1,5 @@
 import Service from './Service.js';
-import { DateTime } from 'luxon';
+
 
 class SessaoService extends Service {
     constructor() {
@@ -31,35 +31,11 @@ class SessaoService extends Service {
         });
     }
 
-    async listarSessoes({ periodo, status = 'agendada', idTatuador }){
-        // Inicializa o objeto de filtros
-        const filtros = {};
-
-        // Filtra por período (dia, semana, mês, ano)
-        if (periodo) {
-            const dataAtual = DateTime.now();
-            const periodos = {
-                dia:    { gte: dataAtual.startOf('day'), lt: dataAtual.endOf('day') },
-                semana: { gte: dataAtual.startOf('week'), lt: dataAtual.endOf('week') },
-                mes:    { gte: dataAtual.startOf('month'), lt: dataAtual.endOf('month') },
-                ano:    { gte: dataAtual.startOf('year'), lt: dataAtual.endOf('year') },
-            };
-
-            const intervalo = periodos[periodo];
-
-            if (!intervalo) throw new Error('Período inválido.');
-
-            filtros.dataHorario = { gte: intervalo.gte.toJSDate(), lt: intervalo.lt.toJSDate() };
-        }
-
-        // Filtra por status e idTatuador
-        if (status) filtros.status = status;
-        if (idTatuador) filtros.idTatuador = Number(idTatuador);
-
-        // Busca registros usando os filtros e parâmetros adicionais
+    async listarSessoes(filtros = {}, paginacao = {}){
         return this.buscarTodosRegistros(filtros, {
             include: { cliente: true, tatuador: true },
             orderBy: { dataHorario: 'asc' },
+            ...paginacao
         });    
     }
 
@@ -90,7 +66,7 @@ class SessaoService extends Service {
 
         const conflito = await this.buscarRegistroPorCampo({
             dataHorario: novoDataHora.toJSDate(),
-            idTatuador: sessao.idTatuador
+            ...(sessao.idTatuador && { idTatuador: sessao.idTatuador }) // Garante que o idTatuador só entra se existir
         });
         if (conflito)throw new Error('Conflito com outra sessão.');
 
