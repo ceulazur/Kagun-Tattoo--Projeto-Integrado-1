@@ -1,5 +1,5 @@
 import Service from './Service.js';
-
+import { DateTime } from 'luxon';
 
 class SessaoService extends Service {
     constructor() {
@@ -8,7 +8,7 @@ class SessaoService extends Service {
 
     async agendarSessao({ idCliente, idTatuador, dataHorario }){
         // Valida se o idCliente existe
-        const clienteExiste = await this.buscarRegistroPorId(idCliente);
+        const clienteExiste = await new Service('cliente').buscarRegistroPorId(idCliente);
         if (!clienteExiste) throw new Error('Cliente não encontrado.');
 
         // Valida se o idTatuador existe
@@ -19,12 +19,13 @@ class SessaoService extends Service {
         const dataHora = DateTime.fromISO(dataHorario);
         if (dataHora <= DateTime.now()) throw new Error('Data e horário devem ser no futuro.');
 
-        // Verifica conflitos de horário
+        // Verifica se já existe uma sessão no mesmo horário para este tatuador
         const conflito = await this.buscarPrimeiroRegistroPorCampo({
-            dataHorario: dataHora.toJSDate(),
-            idTatuador
+            idTatuador,
+            dataHorario: dataHora.toJSDate()
         });
-        if (conflito) throw new Error('Já existe uma sessão nesse horário.');
+
+        if (conflito) throw new Error('Já existe uma sessão agendada nesse horário. Escolha outro horário.');
 
         return this.criarNovoRegistro({
             idCliente, idTatuador, dataHorario: dataHora.toJSDate()
@@ -33,7 +34,14 @@ class SessaoService extends Service {
 
     async listarSessoes(filtros = {}, paginacao = {}){
         return this.buscarTodosRegistros(filtros, {
-            include: { cliente: true, tatuador: true },
+            include: {
+                cliente: {
+                    select: { id: true, nome: true, telefone: true }
+                },
+                tatuador: {
+                    select: { id: true, nome: true, telefone: true }
+                }
+            },
             orderBy: { dataHorario: 'asc' },
             ...paginacao
         });    
@@ -42,7 +50,7 @@ class SessaoService extends Service {
     async listarSessaoPorId(idSessao) {
         const sessao = await this.buscarRegistroPorCampo(
             { id: idSessao },
-            { include: { cliente: true, tatuador: true } }
+            { cliente: true, tatuador: true }
         );
 
         if (!sessao) throw new Error('Sessão não encontrada.');
@@ -51,7 +59,6 @@ class SessaoService extends Service {
     }
 
     async atualizarSessao({ idSessao, novaDataHorario }){
-        // Busca a sessão existente
         const sessao = await this.buscarRegistroPorId(idSessao);
 
         if (!sessao) throw new Error('Sessão não encontrada.');
@@ -64,11 +71,14 @@ class SessaoService extends Service {
         const novoDataHora = DateTime.fromISO(novaDataHorario);
         if (novoDataHora <= DateTime.now()) throw new Error('O novo horário deve ser no futuro.');
 
-        const conflito = await this.buscarRegistroPorCampo({
-            dataHorario: novoDataHora.toJSDate(),
-            ...(sessao.idTatuador && { idTatuador: sessao.idTatuador }) // Garante que o idTatuador só entra se existir
+        const conflito = await this.buscarPrimeiroRegistroPorCampo({
+            idTatuador: sessao.idTatuador,
+            dataHorario: novoDataHora.toJSDate()
         });
-        if (conflito)throw new Error('Conflito com outra sessão.');
+    
+        if (conflito && conflito.id !== idSessao) {
+            throw new Error('Já existe uma sessão agendada nesse horário para esse tatuador.');
+        }
 
         return this.atualizarRegistro(idSessao, { dataHorario: novoDataHora.toJSDate() });
     }
