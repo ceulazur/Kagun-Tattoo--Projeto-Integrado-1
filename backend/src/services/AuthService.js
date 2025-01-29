@@ -36,12 +36,15 @@ class AuthService extends Service {
 
         // Gerando o Token JWT
         const token = jwt.sign(
-            { id: tatuador.id },
+            { id: tatuador.id, nome: tatuador.nome },
             jwtSecret,
             { expiresIn: '1h' }
         );
 
-        return { token, tatuador };
+        // Remove o campo 'senha' antes de retornar os dados
+        const { senha: _, ...tatuadorSemSenha } = tatuador;
+
+        return { token, tatuador: tatuadorSemSenha };
     }
 }
 

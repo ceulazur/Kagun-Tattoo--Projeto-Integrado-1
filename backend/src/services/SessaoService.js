@@ -88,7 +88,7 @@ class SessaoService extends Service {
         const novoDataHora = DateTime.fromISO(novaDataHorario);
         if (novoDataHora <= DateTime.now()) throw new Error('O novo horário deve ser no futuro.');
 
-        const conflito = await this.buscarRegistroPorCampot({
+        const conflito = await this.buscarRegistroPorCampo({
             dataHorario: novoDataHora.toJSDate(),
             idTatuador: sessao.idTatuador
         });
