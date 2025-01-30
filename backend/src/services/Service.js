@@ -1,7 +1,6 @@
 import { prisma } from '../config/prismaClient.js';
 import NotFoundError from '../errors/NotFoundError.js';
 import BadRequestError from '../errors/BadRequestError.js';
-import ConflictError from '../errors/ConflictError.js';
 
 class Service {
     constructor(modelName){

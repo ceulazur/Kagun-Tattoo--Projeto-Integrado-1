@@ -1,6 +1,5 @@
 import Service from './Service.js';
 import BadRequestError from '../errors/BadRequestError.js';
-import NotFoundError from '../errors/NotFoundError.js';
 import ConflictError from '../errors/ConflictError.js';
 
 class ClienteService extends Service {

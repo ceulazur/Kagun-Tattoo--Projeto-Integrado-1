@@ -4,31 +4,10 @@ import bcrypt from 'bcrypt';
 import { jwtSecret } from '../config/config.js';
 import BadRequestError from '../errors/BadRequestError.js';
 import UnauthorizedError from '../errors/UnauthorizedError.js';
-import ConflictError from '../errors/ConflictError.js';
 
 class AuthService extends Service {
     constructor(){
         super('tatuador');
-    }
-
-    async cadastrarTatuador({ cpf, nome, email, telefone, senha }){
-        if (!cpf || !nome || !email || !telefone || !senha)
-            throw new BadRequestError('Todos os campos são obrigatórios.');
-
-        // Verificando se o email, CPF ou telefone já estão cadastrados
-        const cpfExiste      = await this.buscarRegistroPorCampo({ cpf }, {}, false);
-        const emailExiste    = await this.buscarRegistroPorCampo({ email }, {}, false);
-        const telefoneExiste = await this.buscarRegistroPorCampo({ telefone }, {}, false);
-
-        if (cpfExiste)      throw new ConflictError('CPF já cadastrado.');      
-        if (emailExiste)    throw new ConflictError('E-mail já cadastrado.');
-        if (telefoneExiste) throw new ConflictError('Telefone já cadastrado.');
-
-        // Criptografando a senha
-        const senhaCriptografada = await bcrypt.hash(senha, 10);
-
-        // Criando o tatuador no banco
-        return this.criarRegistro({ cpf, nome, email, telefone, senha: senhaCriptografada });
     }
 
     async loginTatuador({ email, senha }){
