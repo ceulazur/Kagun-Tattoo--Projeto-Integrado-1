@@ -1,9 +1,7 @@
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import express from 'express';
-import authRoutes from './routes/authRoutes.js';
-import clientesRoutes from './routes/clienteRoutes.js';
-import sessaoRoutes from './routes/sessaoRoutes.js';
+import routes from './routes/index.js';
 import errorMiddleware from './middlewares/errorMiddleware.js';
 import notFoundMiddleware from './middlewares/notFoundMiddleware.js';
 
@@ -11,11 +9,7 @@ const app = express();
 
 app.use(cors());
 app.use(bodyParser.json());
-
-app.use('/auth', authRoutes);
-app.use('/clientes', clientesRoutes);
-app.use('/sessoes', sessaoRoutes);
-
+app.use(routes);
 app.use(notFoundMiddleware);
 app.use(errorMiddleware);
 

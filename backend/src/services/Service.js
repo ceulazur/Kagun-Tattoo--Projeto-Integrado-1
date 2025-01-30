@@ -9,7 +9,7 @@ class Service {
     }
 
     // POST
-    async criarNovoRegistro(data){
+    async criarRegistro(data){
         try {
             return await prisma[this.model].create({ data });
         } catch (erro) {
@@ -18,7 +18,7 @@ class Service {
     }
 
     // GET all
-    async buscarTodosRegistros(where = {}, extras = {}){
+    async listarRegistros(where = {}, extras = {}){
         try {
             return await prisma[this.model].findMany({ where, ...extras });
         } catch (erro) {
@@ -40,7 +40,7 @@ class Service {
     }
 
     // GET by any field
-    async buscarRegistroPorCampo(where, include = {}){
+    async buscarRegistroPorCampo(where, extras = {}, throwError = true){
         try {
             // Remove campos undefined antes de passar para o Prisma
             const filtrosValidos = Object.fromEntries(
@@ -49,9 +49,9 @@ class Service {
 
             if (Object.keys(filtrosValidos).length === 0) return null;
 
-            const registro = await prisma[this.model].findUnique({ where, include });
+            const registro = await prisma[this.model].findUnique({ where, ...extras });
 
-            if (!registro) throw new NotFoundError('Registro não encontrado.');
+            if (!registro && throwError) throw new NotFoundError('Registro não encontrado.');
 
             return registro;
         } catch (erro) {

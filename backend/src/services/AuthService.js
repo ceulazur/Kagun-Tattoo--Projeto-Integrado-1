@@ -16,9 +16,9 @@ class AuthService extends Service {
             throw new BadRequestError('Todos os campos são obrigatórios.');
 
         // Verificando se o email, CPF ou telefone já estão cadastrados
-        const cpfExiste      = await this.buscarRegistroPorCampo({ cpf });
-        const emailExiste    = await this.buscarRegistroPorCampo({ email });
-        const telefoneExiste = await this.buscarRegistroPorCampo({ telefone });
+        const cpfExiste      = await this.buscarRegistroPorCampo({ cpf }, {}, false);
+        const emailExiste    = await this.buscarRegistroPorCampo({ email }, {}, false);
+        const telefoneExiste = await this.buscarRegistroPorCampo({ telefone }, {}, false);
 
         if (cpfExiste)      throw new ConflictError('CPF já cadastrado.');      
         if (emailExiste)    throw new ConflictError('E-mail já cadastrado.');
@@ -28,10 +28,10 @@ class AuthService extends Service {
         const senhaCriptografada = await bcrypt.hash(senha, 10);
 
         // Criando o tatuador no banco
-        return this.criarNovoRegistro({ cpf, nome, email, telefone, senha: senhaCriptografada });
+        return this.criarRegistro({ cpf, nome, email, telefone, senha: senhaCriptografada });
     }
 
-    async logarTatuador({ email, senha }){
+    async loginTatuador({ email, senha }){
         if (!email || !senha) throw new BadRequestError('E-mail e senha são obrigatórios.');
 
         // Buscando o tatuador pelo email

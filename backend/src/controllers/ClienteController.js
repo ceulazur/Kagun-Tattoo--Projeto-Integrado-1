@@ -13,7 +13,7 @@ class ClienteController extends Controller {
         });
     }
 
-    async cadastrar(req, res, next) {
+    async cadastrarCliente(req, res, next) {
         try {
             const cliente = await this.service.cadastrarCliente(req.body);
 
@@ -23,7 +23,7 @@ class ClienteController extends Controller {
         }
     }
 
-    async listar(req, res, next) {
+    async listarClientes(req, res, next) {
         try {
             const clientes = await this.service.listarClientes(req.query);
 
@@ -33,7 +33,7 @@ class ClienteController extends Controller {
         }
     }
 
-    async buscarPorId(req, res, next) {
+    async buscarClientePorId(req, res, next) {
         try {
             const { id } = req.params;
 
@@ -45,7 +45,7 @@ class ClienteController extends Controller {
         }
     }
 
-    async atualizar(req, res, next) {
+    async atualizarCliente(req, res, next) {
         try {
             const { id } = req.params;
 
@@ -57,7 +57,7 @@ class ClienteController extends Controller {
         }
     }
 
-    async excluir(req, res, next) {
+    async excluirCliente(req, res, next) {
         try {
             const { id } = req.params;
 
