@@ -11,7 +11,7 @@ class ClienteService extends Service {
     async cadastrarCliente({ nome, email, telefone }) {
         if (!nome || !telefone) throw new BadRequestError('Nome e telefone são obrigatórios.');
         
-        const telefoneExiste = await this.buscarRegistroPorCampo({ telefone });
+        const telefoneExiste = await this.buscarRegistroPorCampo({ telefone }, {}, false);
         if (telefoneExiste) throw new ConflictError('Telefone já cadastrado.');
 
         return this.criarRegistro({ nome, email, telefone });
