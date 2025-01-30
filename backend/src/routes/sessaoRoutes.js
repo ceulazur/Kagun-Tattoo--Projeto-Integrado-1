@@ -5,11 +5,11 @@ import paginatorMiddleware from '../middlewares/paginatorMiddleware.js';
 
 const router = express.Router();
 
-router.post('/agendar',        authMiddleware, SessaoController.agendar);
+router.post('/agendar',        authMiddleware, SessaoController.agendarSessao);
 router.get('/listar',          authMiddleware, paginatorMiddleware, SessaoController.listarSessoes);
-router.get('/:id',             authMiddleware, SessaoController.buscarPorId);
-router.put('/:id',             authMiddleware, SessaoController.atualizar);
-router.delete('/cancelar/:id', authMiddleware, SessaoController.cancelar);
-router.delete('/excluir/:id',  authMiddleware, SessaoController.excluir);
+router.get('/:id',             authMiddleware, SessaoController.buscarSessaoPorId);
+router.put('/:id',             authMiddleware, SessaoController.atualizarSessao);
+router.delete('/cancelar/:id', authMiddleware, SessaoController.cancelarSessao);
+router.delete('/excluir/:id',  authMiddleware, SessaoController.excluirSessao);
 
 export default router;
