@@ -4,9 +4,9 @@ class Controller {
     }
 
     // POST
-    async criar(req, res, next) {
+    async criarRegistro(req, res, next) {
         try {
-            const novoRegistro = await this.service.criarNovoRegistro(req.body);
+            const novoRegistro = await this.service.criarRegistro(req.body);
 
             return res.status(201).json(novoRegistro);
         } catch (erro) {
@@ -15,9 +15,9 @@ class Controller {
     }
 
     // GET all
-    async listar(req, res, next) {
+    async listarRegistros(req, res, next) {
         try {
-            const registros = await this.service.buscarTodosRegistros(req.query);
+            const registros = await this.service.listarRegistros(req.query);
 
             return res.status(200).json(registros);
         } catch (erro) {
@@ -26,7 +26,7 @@ class Controller {
     }
 
     // GET by ID
-    async buscarPorId(req, res, next) {
+    async buscarRegistroPorId(req, res, next) {
         try {
             const { id } = req.params;
 
@@ -39,7 +39,7 @@ class Controller {
     }
 
     // PUT
-    async atualizar(req, res, next) {
+    async atualizarRegistro(req, res, next) {
         try {
             const { id } = req.params;
 
@@ -52,7 +52,7 @@ class Controller {
     }
 
     // DELETE
-    async excluir(req, res, next) {
+    async excluirRegistro(req, res, next) {
         try {
             const { id } = req.params;
 

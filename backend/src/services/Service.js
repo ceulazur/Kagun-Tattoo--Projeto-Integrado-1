@@ -9,7 +9,7 @@ class Service {
     }
 
     // POST
-    async criarNovoRegistro(data){
+    async criarRegistro(data){
         try {
             return await prisma[this.model].create({ data });
         } catch (erro) {
@@ -18,7 +18,7 @@ class Service {
     }
 
     // GET all
-    async buscarTodosRegistros(where = {}, extras = {}){
+    async listarRegistros(where = {}, extras = {}){
         try {
             return await prisma[this.model].findMany({ where, ...extras });
         } catch (erro) {

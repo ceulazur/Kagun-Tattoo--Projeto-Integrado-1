@@ -13,7 +13,7 @@ class SessaoController extends Controller {
         });
     }
 
-    async agendar(req, res, next) {
+    async agendarSessao(req, res, next) {
         try {
             const { idCliente, dataHorario } = req.body;
             const idTatuador = req.usuario.idTatuador; // Pegando do token
@@ -36,7 +36,7 @@ class SessaoController extends Controller {
         }
     }
 
-    async buscarPorId(req, res, next){
+    async buscarSessaoPorId(req, res, next){
         try {
             const { id } = req.params;
 
@@ -48,7 +48,7 @@ class SessaoController extends Controller {
         }
     }
 
-    async atualizar(req, res, next) {
+    async atualizarSessao(req, res, next) {
         try {
             const { id } = req.params;
             const { novaDataHorario } = req.body;
@@ -61,7 +61,7 @@ class SessaoController extends Controller {
         }
     }
 
-    async excluir(req, res, next) {
+    async excluirSessao(req, res, next) {
         try {
             const { id } = req.params;
             await this.service.excluirSessao({ idSessao: Number(id) });
@@ -72,7 +72,7 @@ class SessaoController extends Controller {
         }
     }
 
-    async cancelar(req, res, next) {
+    async cancelarSessao(req, res, next) {
         try {
             const { id } = req.params;
     

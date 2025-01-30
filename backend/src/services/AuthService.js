@@ -28,10 +28,10 @@ class AuthService extends Service {
         const senhaCriptografada = await bcrypt.hash(senha, 10);
 
         // Criando o tatuador no banco
-        return this.criarNovoRegistro({ cpf, nome, email, telefone, senha: senhaCriptografada });
+        return this.criarRegistro({ cpf, nome, email, telefone, senha: senhaCriptografada });
     }
 
-    async logarTatuador({ email, senha }){
+    async loginTatuador({ email, senha }){
         if (!email || !senha) throw new BadRequestError('E-mail e senha são obrigatórios.');
 
         // Buscando o tatuador pelo email

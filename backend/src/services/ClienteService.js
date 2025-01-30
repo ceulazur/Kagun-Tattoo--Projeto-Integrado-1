@@ -14,11 +14,11 @@ class ClienteService extends Service {
         const telefoneExiste = await this.buscarRegistroPorCampo({ telefone });
         if (telefoneExiste) throw new ConflictError('Telefone já cadastrado.');
 
-        return this.criarNovoRegistro({ nome, email, telefone });
+        return this.criarRegistro({ nome, email, telefone });
     }
 
     async listarClientes(filtros = {}, paginacao = {}) {
-        return this.buscarTodosRegistros(filtros, { orderBy: { nome: 'asc' }, ...paginacao });
+        return this.listarRegistros(filtros, { orderBy: { nome: 'asc' }, ...paginacao });
     }
 
     async buscarClientePorId(id) {

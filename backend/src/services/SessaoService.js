@@ -23,13 +23,13 @@ class SessaoService extends Service {
         const conflito = await this.buscarPrimeiroRegistroPorCampo( { idTatuador, dataHorario: dataHora.toJSDate() } );
         if (conflito) throw new ConflictError('Já existe uma sessão agendada nesse horário. Escolha outro horário.');
 
-        return this.criarNovoRegistro({
+        return this.criarRegistro({
             idCliente, idTatuador, dataHorario: dataHora.toJSDate()
         });
     }
 
     async listarSessoes(filtros = {}, paginacao = {}){
-        return this.buscarTodosRegistros(filtros, {
+        return this.listarRegistros(filtros, {
             include: {
                 cliente: {
                     select: { id: true, nome: true, telefone: true }
