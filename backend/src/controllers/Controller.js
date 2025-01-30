@@ -4,44 +4,42 @@ class Controller {
     }
 
     // POST
-    async criar(req, res) {
+    async criar(req, res, next) {
         try {
             const novoRegistro = await this.service.criarNovoRegistro(req.body);
 
             return res.status(201).json(novoRegistro);
         } catch (erro) {
-            return res.status(500).json({ mensagem: erro.message });
+            next(erro);
         }
     }
 
     // GET all
-    async listar(req, res) {
+    async listar(req, res, next) {
         try {
             const registros = await this.service.buscarTodosRegistros(req.query);
 
             return res.status(200).json(registros);
         } catch (erro) {
-            return res.status(500).json({ mensagem: erro.message });
+            next(erro);
         }
     }
 
     // GET by ID
-    async buscarPorId(req, res) {
+    async buscarPorId(req, res, next) {
         try {
             const { id } = req.params;
 
             const registro = await this.service.buscarRegistroPorId(Number(id));
 
-            if (!registro) return res.status(404).json({ mensagem: 'Registro não encontrado.' });
-
             return res.status(200).json(registro);
         } catch (erro) {
-            return res.status(500).json({ mensagem: erro.message });
+            next(erro);
         }
     }
 
     // PUT
-    async atualizar(req, res) {
+    async atualizar(req, res, next) {
         try {
             const { id } = req.params;
 
@@ -49,12 +47,12 @@ class Controller {
 
             return res.status(200).json(registroAtualizado);
         } catch (erro) {
-            return res.status(500).json({ mensagem: erro.message });
+            next(erro);
         }
     }
 
     // DELETE
-    async excluir(req, res) {
+    async excluir(req, res, next) {
         try {
             const { id } = req.params;
 
@@ -62,7 +60,7 @@ class Controller {
             
             return res.status(204).send();
         } catch (erro) {
-            return res.status(500).json({ mensagem: erro.message });
+            next(erro);
         }
     }
 }

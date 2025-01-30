@@ -1,4 +1,7 @@
 import { prisma } from '../config/prismaClient.js';
+import NotFoundError from '../errors/NotFoundError.js';
+import BadRequestError from '../errors/BadRequestError.js';
+import ConflictError from '../errors/ConflictError.js';
 
 class Service {
     constructor(modelName){
@@ -10,7 +13,7 @@ class Service {
         try {
             return await prisma[this.model].create({ data });
         } catch (erro) {
-            throw new Error(`Erro ao criar registro: ${erro.message}`);
+            throw new BadRequestError(`Erro ao criar registro: ${erro.message}`);
         }
     }
 
@@ -19,16 +22,20 @@ class Service {
         try {
             return await prisma[this.model].findMany({ where, ...extras });
         } catch (erro) {
-            throw new Error(`Erro ao buscar registros: ${erro.message}`);
+            throw new BadRequestError(`Erro ao buscar registros: ${erro.message}`);
         }
     }
 
     // GET by Id
     async buscarRegistroPorId(id){
         try {
-            return await prisma[this.model].findUnique({ where: { id } }) || null;
+            const registro = await prisma[this.model].findUnique({ where: { id } });
+
+            if (!registro) throw new NotFoundError('Registro não encontrado.');
+
+            return registro;
         } catch (erro) {
-            throw new Error(`Erro ao buscar registro por ID: ${erro.message}`);
+            throw new BadRequestError(`Erro ao buscar registro por ID: ${erro.message}`);
         }
     }
 
@@ -42,9 +49,13 @@ class Service {
 
             if (Object.keys(filtrosValidos).length === 0) return null;
 
-            return await prisma[this.model].findUnique({ where, include });
+            const registro = await prisma[this.model].findUnique({ where, include });
+
+            if (!registro) throw new NotFoundError('Registro não encontrado.');
+
+            return registro;
         } catch (erro) {
-            throw new Error(`Erro ao buscar registro em ${this.model}: ${erro.message}`);
+            throw new BadRequestError(`Erro ao buscar registro em ${this.model}: ${erro.message}`);
         }
     }
 
@@ -53,32 +64,28 @@ class Service {
         try {
             return await prisma[this.model].findFirst({ where, include }) || null;
         } catch (erro) {
-            throw new Error(`Erro ao buscar primeiro registro: ${erro.message}`);
+            throw new BadRequestError(`Erro ao buscar primeiro registro: ${erro.message}`);
         }
     }
 
     // PUT
-    async atualizarRegistro(id, data){
+    async atualizarRegistro(id, data) {
         try {
-            const existe = await this.buscarRegistroPorId(id);
-
-            if (!existe) return null;
-
+            await this.buscarRegistroPorId(id);
+            
             return await prisma[this.model].update({ where: { id }, data });
         } catch (erro) {
-            throw new Error(`Erro ao atualizar registro: ${erro.message}`);
+            throw new BadRequestError(`Erro ao atualizar registro: ${erro.message}`);
         }
     }
 
     // DEL
-    async excluirRegistro(id){
+    async excluirRegistro(id) {
         try {
-            const existe = await this.buscarRegistroPorId(id);
-            if (!existe) return null;
-
+            await this.buscarRegistroPorId(id);
             return await prisma[this.model].delete({ where: { id } });
         } catch (erro) {
-            throw new Error(`Erro ao excluir registro: ${erro.message}`);
+            throw new BadRequestError(`Erro ao excluir registro: ${erro.message}`);
         }
     }
 }
