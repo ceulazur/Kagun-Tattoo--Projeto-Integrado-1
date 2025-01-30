@@ -8,12 +8,12 @@ datasource db {
 }
 
 model Tatuador {
-  cpf      String   @unique
+  id       Int      @id @default(autoincrement())
   nome     String
+  cpf      String   @unique
+  telefone String   @unique
   email    String   @unique
   senha    String
-  id       Int      @id @default(autoincrement())
-  telefone String   @unique
   sessoes  Sessao[]
 }
 
@@ -25,14 +25,25 @@ model Cliente {
 }
 
 model Sessao {
-  idTatuador  Int
-  dataHorario DateTime
   id          Int          @id @default(autoincrement())
-  idCliente   Int
+  dataHorario DateTime
   termino     DateTime?
   status      StatusSessao @default(agendada)
+  idTatuador  Int
+  idCliente   Int
   cliente     Cliente      @relation(fields: [idCliente], references: [id])
   tatuador    Tatuador     @relation(fields: [idTatuador], references: [id])
+}
+
+model Produto {
+  id            Int      @id @default(autoincrement())
+  nome          String
+  codigo        String   @unique
+  lote          String
+  validade      DateTime
+  quantidade    Int
+  categoria     String
+  estoqueMinimo Int
 }
 
 enum StatusSessao {
