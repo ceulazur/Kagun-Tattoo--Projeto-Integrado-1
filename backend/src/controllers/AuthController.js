@@ -14,23 +14,23 @@ class AuthController extends Controller {
     }
 
     // Sobscreve o método genérico pra usar a lógica personalizada
-    async cadastrar(req, res){
+    async cadastrar(req, res, next){
         try {
             const tatuador = await this.service.cadastrarTatuador(req.body);
 
             return res.status(201).json({ mensagem: 'Tatuador cadastrado com sucesso.', tatuador });
         } catch (erro) {
-            return res.status(400).json({ mensagem: erro.message });
+            next(erro);
         }
     }
 
-    async login(req, res){
+    async login(req, res, next){
         try {
             const { token, tatuador } = await this.service.logarTatuador(req.body);
             
             return res.status(200).json({ token, mensagem: 'Login realizado com sucesso.', tatuador });
         } catch (erro) {
-            return res.status(400).json({ mensagem: erro.message });
+            next(erro);
         }
     }
 }

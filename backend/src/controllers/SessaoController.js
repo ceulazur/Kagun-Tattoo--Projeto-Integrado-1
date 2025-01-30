@@ -13,7 +13,7 @@ class SessaoController extends Controller {
         });
     }
 
-    async agendar(req, res) {
+    async agendar(req, res, next) {
         try {
             const { idCliente, dataHorario } = req.body;
             const idTatuador = req.usuario.idTatuador; // Pegando do token
@@ -22,21 +22,21 @@ class SessaoController extends Controller {
 
             return res.status(201).json({ mensagem: 'Sessão agendada com sucesso.', sessao });
         } catch (erro) {
-            return res.status(400).json({ mensagem: erro.message });
+            next(erro);
         }
     }
 
-    async listarSessoes(req, res) {
+    async listarSessoes(req, res, next) {
         try {
             const sessoes = await this.service.listarSessoes(req.filtros, req.paginacao);
 
             return res.status(200).json(sessoes);
         } catch (erro) {
-            return res.status(400).json({ mensagem: erro.message });
+            next(erro);
         }
     }
 
-    async buscarPorId(req, res){
+    async buscarPorId(req, res, next){
         try {
             const { id } = req.params;
 
@@ -44,32 +44,43 @@ class SessaoController extends Controller {
 
             return res.status(200).json({ sessao });
         } catch (erro) {
-            return res.status(404).json({ mensagem: erro.message });
+            next(erro);
         }
     }
 
-    async atualizar(req, res) {
+    async atualizar(req, res, next) {
         try {
-            const { id } = req.params;  // ✅ Agora pega o ID da URL
+            const { id } = req.params;
             const { novaDataHorario } = req.body;
     
             const sessaoAtualizada = await this.service.atualizarSessao({ idSessao: Number(id), novaDataHorario });
     
             return res.status(200).json({ mensagem: 'Sessão reagendada com sucesso.', sessaoAtualizada });
         } catch (erro) {
-            return res.status(400).json({ mensagem: erro.message });
+            next(erro);
         }
     }
 
-    async cancelar(req, res) {
+    async excluir(req, res, next) {
         try {
-            const { id } = req.params; // ✅ Agora pega o ID da URL
+            const { id } = req.params;
+            await this.service.excluirSessao({ idSessao: Number(id) });
+    
+            return res.status(200).json({ mensagem: 'Sessão excluída com sucesso.' });
+        } catch (erro) {
+            next(erro);
+        }
+    }
+
+    async cancelar(req, res, next) {
+        try {
+            const { id } = req.params;
     
             const sessaoCancelada = await this.service.cancelarSessao({ idSessao: Number(id) });
     
             return res.status(200).json({ mensagem: 'Sessão cancelada com sucesso.', sessaoCancelada });
         } catch (erro) {
-            return res.status(400).json({ mensagem: erro.message });
+            next(erro);
         }
     }
 }

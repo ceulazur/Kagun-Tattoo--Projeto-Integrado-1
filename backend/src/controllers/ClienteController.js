@@ -13,65 +13,59 @@ class ClienteController extends Controller {
         });
     }
 
-    async cadastrar(req, res) {
+    async cadastrar(req, res, next) {
         try {
             const cliente = await this.service.cadastrarCliente(req.body);
 
             return res.status(201).json({ mensagem: 'Cliente cadastrado com sucesso.', cliente });
         } catch (erro) {
-            return res.status(400).json({ mensagem: erro.message });
+            next(erro);
         }
     }
 
-    async listar(req, res) {
+    async listar(req, res, next) {
         try {
             const clientes = await this.service.listarClientes(req.query);
 
             return res.status(200).json(clientes);
         } catch (erro) {
-            return res.status(400).json({ mensagem: erro.message });
+            next(erro);
         }
     }
 
-    async buscarPorId(req, res) {
+    async buscarPorId(req, res, next) {
         try {
             const { id } = req.params;
 
             const cliente = await this.service.buscarClientePorId(Number(id));
 
-            if (!cliente) return res.status(404).json({ mensagem: 'Cliente não encontrado.' });
-
             return res.status(200).json(cliente);
         } catch (erro) {
-            return res.status(400).json({ mensagem: erro.message });
+            next(erro);
         }
     }
 
-    async atualizar(req, res) {
+    async atualizar(req, res, next) {
         try {
             const { id } = req.params;
 
             const clienteAtualizado = await this.service.atualizarCliente(Number(id), req.body);
 
-            if (!clienteAtualizado) return res.status(404).json({ mensagem: "Cliente não encontrado." });
-
             return res.status(200).json({ mensagem: 'Cliente atualizado com sucesso.', clienteAtualizado });
         } catch (erro) {
-            return res.status(400).json({ mensagem: erro.message });
+            next(erro);
         }
     }
 
-    async excluir(req, res) {
+    async excluir(req, res, next) {
         try {
             const { id } = req.params;
 
-            const clienteExcluido = await this.service.excluirCliente(Number(id));
-    
-            if (!clienteExcluido) return res.status(404).json({ mensagem: "Cliente não encontrado." });
+            await this.service.excluirCliente(Number(id));
     
             return res.status(200).json({ mensagem: "Cliente excluído com sucesso." });
         } catch (erro) {
-            return res.status(400).json({ mensagem: erro.message });
+            next(erro);
         }
     }
 }
