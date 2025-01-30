@@ -29,7 +29,7 @@ class SessaoService extends Service {
     }
 
     async listarSessoes(filtros = {}, paginacao = {}){
-        const sessoes = await this.listarRegistros(filtros, {
+        return this.listarRegistros(filtros, {
             include: {
                 cliente:  { select: { id: true, nome: true, telefone: true } },
                 tatuador: { select: { id: true, nome: true, telefone: true } }
@@ -37,31 +37,16 @@ class SessaoService extends Service {
             orderBy: { dataHorario: 'asc' },
             ...paginacao
         });
-
-        return sessoes.map(({ id, dataHorario, termino, status, cliente, tatuador }) => ({
-            id,
-            dataHorario,
-            termino,
-            status,
-            cliente,
-            tatuador
-        }));
     }
 
     async listarSessaoPorId(idSessao) {
-        const sessao = await this.buscarRegistroPorCampo(
+        return this.buscarRegistroPorCampo(
             { id: idSessao },
             {
                 cliente: { select: { id: true, nome: true, telefone: true } },
                 tatuador: { select: { id: true, nome: true, telefone: true } }
             }
         );
-    
-        if (!sessao) throw new NotFoundError('Sessão não encontrada.');
-    
-        // Reorganizando a ordem dos atributos no retorno
-        const { id, dataHorario, termino, status, cliente, tatuador } = sessao;
-        return { id, dataHorario, termino, status, cliente, tatuador };
     }
 
     async atualizarSessao({ idSessao, novaDataHorario }) {
