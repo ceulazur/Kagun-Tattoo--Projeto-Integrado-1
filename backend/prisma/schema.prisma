@@ -46,6 +46,14 @@ model Produto {
   estoqueMinimo Int
 }
 
+model Fornecedor {
+  id         Int      @id @default(autoincrement())
+  nome       String
+  telefone   String   @unique
+  email      String   @unique
+  produtos   String[]
+}
+
 enum StatusSessao {
   agendada
   concluida
