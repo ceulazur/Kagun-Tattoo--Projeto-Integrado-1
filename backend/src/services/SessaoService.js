@@ -90,18 +90,21 @@ class SessaoService extends Service {
     }
 
     async excluirSessao({ idSessao }){
-        await this.buscarRegistroPorId(idSessao);
+        const sessao = await this.buscarRegistroPorId(idSessao);
+
+        const dataHoraAtual = DateTime.fromJSDate(sessao.dataHorario);
+        if (dataHoraAtual <= DateTime.now()) 
+            throw new BadRequestError('Não é possível excluir sessões passadas.');
+
         return this.excluirRegistro(idSessao);
     }
 
     async cancelarSessao({ idSessao }){
-        // Busca a sessão existente
         const sessao = await this.buscarRegistroPorId(idSessao);
 
-        // Valida se a sessão já foi cancelada ou é passada
         const dataHoraAtual = DateTime.fromJSDate(sessao.dataHorario);
-        if (dataHoraAtual <= DateTime.now()) throw new BadRequestError('Não é possível cancelar sessões passadas.')
-        if (sessao.status === 'cancelada')   throw new BadRequestError('Essa sessão já foi cancelada.')
+        if (dataHoraAtual <= DateTime.now()) throw new BadRequestError('Não é possível cancelar sessões passadas.');
+        if (sessao.status === 'cancelada')   throw new BadRequestError('Essa sessão já foi cancelada.');
 
         return this.atualizarRegistro(idSessao, { status: 'cancelada' });
     }
