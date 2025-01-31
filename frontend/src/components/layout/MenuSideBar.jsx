@@ -210,10 +210,7 @@ const MenuSideBar = ({ children }) => {
             </div>
           </div>
         </Sider>
-        <Layout
-          style={{ marginLeft: collapsed ? 80 : 200 }}
-          className="bg-custom-gray"
-        >
+        <Layout style={{ marginLeft: collapsed ? 80 : 200 }}>
           <div className="bg-white p-3 d-flex flex-column items-center justify-between gap-3">
             <Breadcrumb>{breadcrumbItems}</Breadcrumb>
             <h3>
