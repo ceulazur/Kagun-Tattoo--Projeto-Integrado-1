@@ -59,9 +59,10 @@ class ProdutoController extends Controller {
     async excluirProduto(req, res, next) {
         try {
             const { id } = req.params;
+            const { forcarExclusao = false } = req.query;
 
-            await this.service.excluirProduto(Number(id));
-            
+            await this.service.excluirProduto(Number(id), forcarExclusao === 'true');
+
             return res.status(200).json({ mensagem: 'Produto excluído com sucesso.' });
         } catch (erro) {
             next(erro);
