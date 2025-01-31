@@ -51,11 +51,16 @@ class SessaoController extends Controller {
     async atualizarSessao(req, res, next) {
         try {
             const { id } = req.params;
-            const { novaDataHorario } = req.body;
+            const { novaDataHorario, novoStatus, produtosConsumidos = [] } = req.body;
+            
+            const sessaoAtualizada = await this.service.atualizarSessao({
+                idSessao: Number(id),
+                novaDataHorario,
+                novoStatus,
+                produtosConsumidos
+            });
     
-            const sessaoAtualizada = await this.service.atualizarSessao({ idSessao: Number(id), novaDataHorario });
-    
-            return res.status(200).json({ mensagem: 'Sessão reagendada com sucesso.', sessaoAtualizada });
+            return res.status(200).json({ mensagem: 'Sessão atualizada com sucesso.', sessaoAtualizada });
         } catch (erro) {
             next(erro);
         }

@@ -42,8 +42,36 @@ class ProdutoService extends Service {
         return this.atualizarRegistro(id, dadosAtualizados);
     }
 
-    async excluirProduto(id) {
+    async excluirProduto(id, forcarExclusao = false) {
+        const produto = await this.buscarRegistroPorId(id);
+    
+        if (produto.quantidade > 0) {
+            if (!forcarExclusao) throw new BadRequestError('Não é possível excluir um produto com estoque disponível.');
+    
+            // Zera o estoque antes de excluir.
+            await this.atualizarRegistro(id, { quantidade: 0 });
+        }
+    
         return this.excluirRegistro(id);
+    }
+
+    async reduzirEstoque(produtosConsumidos) {
+        for (const { idProduto, quantidadeUsada } of produtosConsumidos) {
+            if (!idProduto || quantidadeUsada === undefined || quantidadeUsada <= 0) 
+                throw new BadRequestError(`Quantidade inválida para reduzir estoque do produto com ID ${idProduto}.`);
+
+            const produto = await this.buscarRegistroPorId(idProduto);
+    
+            if (produto.quantidade < quantidadeUsada)
+                throw new BadRequestError(`Estoque insuficiente para o produto ${produto.nome}.`);
+    
+            const novaQuantidade = produto.quantidade - quantidadeUsada;
+            await this.atualizarRegistro(idProduto, { quantidade: novaQuantidade });
+    
+            // Disparar notificação futuramente
+            if (novaQuantidade <= produto.estoqueMinimo)
+                console.warn(`Alerta: Estoque do produto ${produto.nome} está abaixo do limite mínimo!`);
+        }
     }
 }
 

@@ -1,4 +1,5 @@
 import Service from './Service.js';
+import ProdutoService from './ProdutoService.js';
 import BadRequestError from '../errors/BadRequestError.js';
 import ConflictError from '../errors/ConflictError.js';
 import { DateTime } from 'luxon';
@@ -43,32 +44,49 @@ class SessaoService extends Service {
         return this.buscarRegistroPorCampo(
             { id: idSessao },
             {
-                cliente: { select: { id: true, nome: true, telefone: true } },
-                tatuador: { select: { id: true, nome: true, telefone: true } }
+                include: {
+                    cliente: { select: { id: true, nome: true, telefone: true } },
+                    tatuador: { select: { id: true, nome: true, telefone: true } }
+                }
             }
         );
     }
 
-    async atualizarSessao({ idSessao, novaDataHorario }) {
+    async atualizarSessao({ idSessao, novaDataHorario, novoStatus, produtosConsumidos }) {
         const sessao = await this.buscarRegistroPorId(idSessao);
+        const dadosAtualizados = {};
+        if (novaDataHorario){
+            // Valida se a sessão já passou
+            const dataHoraAtual = DateTime.fromJSDate(sessao.dataHorario);
+            if (dataHoraAtual <= DateTime.now()) throw new BadRequestError('Não é possível reagendar sessões passadas.');
 
-        // Valida se a sessão já passou
-        const dataHoraAtual = DateTime.fromJSDate(sessao.dataHorario);
-        if (dataHoraAtual <= DateTime.now()) throw new BadRequestError('Não é possível reagendar sessões passadas.');
+            // Valida se o novo horário é no futuro
+            const novoDataHora = DateTime.fromISO(novaDataHorario).startOf('second'); // 🔥 Remove precisão extra
+            if (novoDataHora <= DateTime.now()) throw new BadRequestError('O novo horário deve ser no futuro.');
+
+            // Verifica se já existe uma sessão no mesmo horário para esse tatuador (exceto a própria sessão)
+            const conflito = await this.buscarPrimeiroRegistroPorCampo({
+                idTatuador: sessao.idTatuador,
+                dataHorario: novoDataHora.toJSDate()
+            });
+            // 
+            if (conflito && conflito.id !== idSessao) throw new ConflictError('Já existe uma sessão agendada nesse horário para esse tatuador.');
+
+            dadosAtualizados.dataHorario = novoDataHora.toJSDate();
+        }
+        
+        if (novoStatus) {
+            if (novoStatus === 'concluida') {
+                if (!produtosConsumidos || produtosConsumidos.length === 0) 
+                    throw new BadRequestError('É necessário informar os produtos consumidos para concluir a sessão.');
     
-        // Valida se o novo horário é no futuro
-        const novoDataHora = DateTime.fromISO(novaDataHorario).startOf('second'); // 🔥 Remove precisão extra
-        if (novoDataHora <= DateTime.now()) throw new BadRequestError('O novo horário deve ser no futuro.');
+                await ProdutoService.reduzirEstoque(produtosConsumidos);
+            }
     
-        // Verifica se já existe uma sessão no mesmo horário para esse tatuador (exceto a própria sessão)
-        const conflito = await this.buscarPrimeiroRegistroPorCampo({
-            idTatuador: sessao.idTatuador,
-            dataHorario: novoDataHora.toJSDate()
-        });
-    
-        if (conflito) throw new ConflictError('Já existe uma sessão agendada nesse horário para esse tatuador.');
-    
-        return this.atualizarRegistro(idSessao, { dataHorario: novoDataHora.toJSDate() });
+            dadosAtualizados.status = novoStatus;
+        }
+
+        return this.atualizarRegistro(idSessao, dadosAtualizados);
     }
 
     async excluirSessao({ idSessao }){
