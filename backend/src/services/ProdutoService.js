@@ -8,21 +8,36 @@ class ProdutoService extends Service {
         super('produto');
     }
 
-    async cadastrarProduto({ nome, codigo, lote, validade, quantidade, categoria, estoqueMinimo }) {
-        if (!nome || !codigo || !lote || !validade || quantidade === undefined || !categoria || estoqueMinimo === undefined)
+    async cadastrarProduto({ nome, lote, validade, quantidade, categoria, estoqueMinimo, idFornecedor }) {
+        if (!nome || !lote || !validade || quantidade === undefined || !categoria || estoqueMinimo === undefined || !idFornecedor)
             throw new BadRequestError('Todos os campos são obrigatórios.');
-
-        const codigoExiste = await this.buscarRegistroPorCampo({ codigo }, {}, false);
-        if (codigoExiste) throw new ConflictError('Código do produto já cadastrado.');
 
         const dataValidade = DateTime.fromISO(validade);
         if (!dataValidade.isValid) throw new BadRequestError('Data de validade inválida.');
         
-        return this.criarRegistro({ nome, codigo, lote, validade: dataValidade.toJSDate(), quantidade, categoria, estoqueMinimo });
+        const novoProduto = await this.criarRegistro({
+            nome,
+            lote,
+            validade: dataValidade.toJSDate(),
+            quantidade,
+            categoria,
+            estoqueMinimo,
+            idFornecedor
+        });
+
+        return novoProduto;
     }
 
     async listarProdutos(filtros = {}, paginacao = {}) {
         return this.listarRegistros(filtros, { orderBy: { nome: 'asc' }, ...paginacao });
+    }
+
+    async listarProdutosEstoqueBaixo() {
+        return this.listarRegistros({
+            quantidade: {
+                lt: prisma.produto.fields.estoqueMinimo
+            }
+        });
     }
 
     async buscarProdutoPorId(id) {
