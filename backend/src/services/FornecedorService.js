@@ -7,8 +7,8 @@ class FornecedorService extends Service {
         super('fornecedor');
     }
 
-    async cadastrarFornecedor({ nome, telefone, email, produtos }) {
-        if (!nome || !telefone || !email || !produtos || produtos.length === 0)
+    async cadastrarFornecedor({ nome, telefone, email }) {
+        if (!nome || !telefone || !email)
             throw new BadRequestError('Todos os campos são obrigatórios.');
 
         // Verifica se telefone ou e-mail já estão cadastrados
@@ -18,15 +18,21 @@ class FornecedorService extends Service {
         if (telefoneExiste) throw new ConflictError('Telefone já cadastrado.');
         if (emailExiste)    throw new ConflictError('E-mail já cadastrado.');
 
-        return this.criarRegistro({ nome, telefone, email, produtos });
+        return this.criarRegistro({ nome, telefone, email });
     }
 
     async listarFornecedores(filtros = {}, paginacao = {}) {
-        return this.listarRegistros(filtros, { orderBy: { nome: 'asc' }, ...paginacao });
-    }
+        return this.listarRegistros(filtros, {
+            include: { produtos: true },
+            orderBy: { nome: 'asc' },
+            ...paginacao
+        });
+    }    
 
     async buscarFornecedorPorId(id) {
-        return this.buscarRegistroPorId(id);
+        return this.buscarRegistroPorId(id, {
+            include: { produtos: true } // Inclui os produtos associados
+        });
     }
 
     async atualizarFornecedor(id, dadosAtualizados) {

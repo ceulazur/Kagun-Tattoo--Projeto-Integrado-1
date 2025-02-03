@@ -1,29 +1,45 @@
 import Service from './Service.js';
+import FornecedorService from './FornecedorService.js';
 import BadRequestError from '../errors/BadRequestError.js';
-import ConflictError from '../errors/ConflictError.js';
 import { DateTime } from 'luxon';
+import { prisma } from '../config/prismaClient.js';
 
 class ProdutoService extends Service {
     constructor() {
         super('produto');
     }
 
-    async cadastrarProduto({ nome, codigo, lote, validade, quantidade, categoria, estoqueMinimo }) {
-        if (!nome || !codigo || !lote || !validade || quantidade === undefined || !categoria || estoqueMinimo === undefined)
+    async cadastrarProduto({ nome, lote, validade, quantidade, categoria, estoqueMinimo, idFornecedor }) {
+        if (!nome || !lote || !validade || quantidade === undefined || !categoria || estoqueMinimo === undefined || !idFornecedor)
             throw new BadRequestError('Todos os campos são obrigatórios.');
-
-        const codigoExiste = await this.buscarRegistroPorCampo({ codigo }, {}, false);
-        if (codigoExiste) throw new ConflictError('Código do produto já cadastrado.');
 
         const dataValidade = DateTime.fromISO(validade);
         if (!dataValidade.isValid) throw new BadRequestError('Data de validade inválida.');
         
-        return this.criarRegistro({ nome, codigo, lote, validade: dataValidade.toJSDate(), quantidade, categoria, estoqueMinimo });
+        const fornecedor = await FornecedorService.buscarRegistroPorId(idFornecedor);
+        if (!fornecedor) throw new NotFoundError('Fornecedor não encontrado.');
+
+        const novoProduto = await this.criarRegistro({
+            nome,
+            lote,
+            validade: dataValidade.toJSDate(),
+            quantidade,
+            categoria,
+            estoqueMinimo,
+            idFornecedor
+        });
+
+        return novoProduto;
     }
 
     async listarProdutos(filtros = {}, paginacao = {}) {
         return this.listarRegistros(filtros, { orderBy: { nome: 'asc' }, ...paginacao });
     }
+
+    async listarProdutosEstoqueBaixo() {
+        const produtos = await this.listarRegistros();
+        return produtos.filter(produto => produto.quantidade < produto.estoqueMinimo);
+    }    
 
     async buscarProdutoPorId(id) {
         return this.buscarRegistroPorId(id);

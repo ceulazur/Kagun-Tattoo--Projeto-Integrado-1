@@ -32,6 +32,17 @@ class ProdutoController extends Controller {
         }
     }
 
+
+    async listarProdutosEstoqueBaixo(req, res, next) { 
+        try {
+            const produtos = await this.service.listarProdutosEstoqueBaixo();
+            
+            return res.status(200).json(produtos);
+        } catch (erro) {
+            next(erro);
+        }
+    }
+
     async buscarProdutoPorId(req, res, next) {
         try {
             const { id } = req.params;
