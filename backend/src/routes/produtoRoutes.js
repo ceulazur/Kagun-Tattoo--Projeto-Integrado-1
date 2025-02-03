@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.post('/cadastrar',   authMiddleware, ProdutoController.cadastrarProduto);
 router.get('/listar',       authMiddleware, paginatorMiddleware, ProdutoController.listarProdutos);
-router.get('/estoqueBaixo', authMiddleware, ProdutoController.listarProdutosEstoqueBaixo);
+router.get('/estoqueBaixo', authMiddleware, paginatorMiddleware, ProdutoController.listarProdutosEstoqueBaixo);
 router.get('/:id',          authMiddleware, ProdutoController.buscarProdutoPorId);
 router.put('/:id',          authMiddleware, ProdutoController.atualizarProduto);
 router.delete('/:id',       authMiddleware, ProdutoController.excluirProduto);
