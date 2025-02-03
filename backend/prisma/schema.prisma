@@ -36,22 +36,23 @@ model Sessao {
 }
 
 model Produto {
-  id            Int      @id @default(autoincrement())
+  id            Int         @id @default(autoincrement())
   nome          String
-  codigo        String   @unique
   lote          String
   validade      DateTime
   quantidade    Int
   categoria     String
   estoqueMinimo Int
+  idFornecedor  Int?
+  fornecedor    Fornecedor? @relation(fields: [idFornecedor], references: [id])
 }
 
 model Fornecedor {
-  id         Int      @id @default(autoincrement())
-  nome       String
-  telefone   String   @unique
-  email      String   @unique
-  produtos   String[]
+  id       Int       @id @default(autoincrement())
+  nome     String
+  telefone String    @unique
+  email    String    @unique
+  produtos Produto[] // Relacionamento com produtos
 }
 
 enum StatusSessao {
