@@ -1,7 +1,8 @@
 import Service from './Service.js';
+import FornecedorService from './FornecedorService.js';
 import BadRequestError from '../errors/BadRequestError.js';
-import ConflictError from '../errors/ConflictError.js';
 import { DateTime } from 'luxon';
+import { prisma } from '../config/prismaClient.js';
 
 class ProdutoService extends Service {
     constructor() {
@@ -15,6 +16,9 @@ class ProdutoService extends Service {
         const dataValidade = DateTime.fromISO(validade);
         if (!dataValidade.isValid) throw new BadRequestError('Data de validade inválida.');
         
+        const fornecedor = await FornecedorService.buscarRegistroPorId(idFornecedor);
+        if (!fornecedor) throw new NotFoundError('Fornecedor não encontrado.');
+
         const novoProduto = await this.criarRegistro({
             nome,
             lote,
@@ -33,12 +37,9 @@ class ProdutoService extends Service {
     }
 
     async listarProdutosEstoqueBaixo() {
-        return this.listarRegistros({
-            quantidade: {
-                lt: prisma.produto.fields.estoqueMinimo
-            }
-        });
-    }
+        const produtos = await this.listarRegistros();
+        return produtos.filter(produto => produto.quantidade < produto.estoqueMinimo);
+    }    
 
     async buscarProdutoPorId(id) {
         return this.buscarRegistroPorId(id);
