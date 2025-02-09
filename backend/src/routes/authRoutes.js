@@ -1,12 +1,8 @@
 import express from 'express';
-import { cadastrarTatuador, logarTatuador } from '../controllers/authController.js';
+import AuthController from '../controllers/AuthController.js';
 
 const router = express.Router();
 
-router.get('/', () => {
-    res.json({ mensagem: 'teste' })
-})
-router.post('/cadastro', cadastrarTatuador);
-router.post('/login', logarTatuador);
+router.post('/login', AuthController.loginTatuador);
 
 export default router;

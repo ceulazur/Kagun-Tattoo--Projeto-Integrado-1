@@ -28,6 +28,15 @@ export default defineConfig({
           },
         },
       },
+      builderOptions: {
+        win: {
+          target: "portable",
+          artifactName: "kagun-tattoo-setup.exe",
+        },
+      },
     }),
   ],
+  optimizeDeps: {
+    exclude: ["date-fns-tz"],
+  },
 });

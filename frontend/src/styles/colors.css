@@ -7,7 +7,7 @@
   --color-hover: #47003a;
   --color-black: #0f0f0f;
   --color-dark-gray: #2d2d2d;
-  --color-gray: #ededed;
+  --color-gray: #adadad;
   --color-light-gray: #f6f6f6;
   --color-white: #ffffff;
 }
@@ -35,6 +35,14 @@
 
 .bg-custom-black {
   background-color: var(--color-black);
+}
+
+.bg-custom-light-gray {
+  background-color: var(--color-light-gray);
+}
+
+.bg-custom-gray {
+  background-color: var(--color-gray);
 }
 
 .bg-custom-dark-gray {

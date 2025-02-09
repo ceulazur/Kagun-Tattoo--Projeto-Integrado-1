@@ -1,3 +1,4 @@
+import { message } from "antd";
 import {
   addDays,
   addMonths,
@@ -10,18 +11,94 @@ import {
 import { ptBR } from "date-fns/locale";
 import React, { useEffect, useState } from "react";
 import { BsChevronLeft, BsChevronRight, BsPlus } from "react-icons/bs";
+import {
+  agendarSessao,
+  listarSessoes,
+  reagendarSessao,
+  cancelarSessao,
+} from "../api/entities/sessao";
 import DiaView from "../components/agenda/DiaView";
 import MesView from "../components/agenda/MesView";
+import EditarAgendamentoModal from "../components/agenda/modals/EditarAgendamentoModal";
+import NovoAgendamentoModal from "../components/agenda/modals/NovoAgendamentoModal";
+import DeletarAgendamentoModal from "../components/agenda/modals/DeletarAgendamentoModal";
 import SemanaView from "../components/agenda/SemanaView";
 
+const mockAppointments = [
+  {
+    idSessao: 1,
+    nomeCliente: "Alice",
+    data: new Date("2025-01-26T10:00:00"),
+    horario: new Date("2025-01-26T11:00:00"),
+    status: "agendada",
+    termino: new Date("2025-01-26T13:00:00"),
+    tatuador: {
+      idTatuador: 1,
+      nome: "Tatuador 1",
+    },
+  },
+  {
+    idSessao: 2,
+    nomeCliente: "Bob",
+    data: new Date("2025-01-26T12:00:00"),
+    horario: new Date("2025-01-26T13:00:00"),
+    status: "concluída",
+    termino: new Date("2025-01-26T16:30:00"),
+    tatuador: {
+      idTatuador: 2,
+      nome: "Tatuador 2",
+    },
+  },
+
+  {
+    idSessao: 3,
+    nomeCliente: "Jonh",
+    data: new Date("2025-01-27T12:00:00"),
+    horario: new Date("2025-01-27T08:00:00"),
+    status: "concluída",
+    termino: new Date("2025-01-27T09:30:00"),
+    tatuador: {
+      idTatuador: 2,
+      nome: "Tatuador 2",
+    },
+  },
+];
 const Agenda = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [view, setView] = useState(() => {
     return localStorage.getItem("agendaView") || "month";
   });
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [appointments, setAppointments] = useState([]);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const handleGetAgendamentos = async () => {
+    try {
+      const response = await listarSessoes(); // Aguarda a resposta da função listarSessoes
+      console.log("Agendamentos carregados com sucesso:", response.sessoes);
+
+      // Transforma as sessões para incluir o campo 'termino' com o mesmo valor de 'horario'
+      const appointmentsWithTermino = response.sessoes.map((sessao) => ({
+        ...sessao,
+        termino: sessao.horario, // 'termino' recebe o mesmo valor de 'horario'
+      }));
+
+      console.log(
+        "Agendamentos com termino carregados com sucesso:",
+        appointmentsWithTermino
+      );
+
+      setAppointments(appointmentsWithTermino); // Atualiza o estado com os agendamentos transformados
+    } catch (error) {
+      message.error("Erro ao carregar os agendamentos. Tente novamente."); // Exibe mensagem de erro em caso de falha
+    }
+  };
 
   useEffect(() => {
     localStorage.setItem("agendaView", view);
+    handleGetAgendamentos();
   }, [view]);
 
   const handleDateChange = (operation) => {
@@ -39,6 +116,58 @@ const Agenda = () => {
     };
     const selectedOperation = operationMap[operation][view];
     setCurrentDate(selectedOperation(currentDate, 1));
+  };
+
+  const handleSaveAgendamento = async (novoAgendamento) => {
+    try {
+      const response = await agendarSessao(novoAgendamento);
+      console.log("response", response);
+      if (response.status == 201) {
+        message.success("Agendamento salvo com sucesso!");
+      }
+      handleGetAgendamentos();
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error(error.response.data.mensagem);
+      if (
+        error.response.data.mensagem === "Já existe uma sessão nesse horário."
+      ) {
+        message.error(
+          "Já existe uma sessão nesse horário. Por favor, escolha outro horário."
+        );
+      } else {
+        message.error("Erro ao salvar o agendamento. Tente novamente.");
+      }
+    }
+  };
+
+  const handleEditAgendamento = (appointment) => {
+    setSelectedAppointment(appointment);
+    setIsEditModalOpen(true);
+  };
+
+  const handleUpdateAgendamento = async (updatedAgendamento) => {
+    try {
+      const response = await reagendarSessao(updatedAgendamento);
+      if (response.status === 200) {
+        message.success("Agendamento atualizado com sucesso!");
+        handleGetAgendamentos();
+      }
+    } catch (error) {
+      message.error("Erro ao atualizar o agendamento. Tente novamente.");
+    }
+  };
+
+  const handleDeleteAgendamento = async (appointmentId) => {
+    try {
+      const response = await cancelarSessao(appointmentId);
+      if (response.status === 200) {
+        message.success("Agendamento deletado com sucesso!");
+        handleGetAgendamentos();
+      }
+    } catch (error) {
+      message.error("Erro ao deletar o agendamento. Tente novamente.");
+    }
   };
 
   const capitalizeFirstLetter = (string) =>
@@ -97,15 +226,65 @@ const Agenda = () => {
         </div>
         <span className="border"></span>
         <div className="d-flex align-items-center justify-content-around w-50 pl-3">
-          <button className="button button-primary w-100">
+          <button
+            className="button button-primary w-100"
+            onClick={() => setIsModalOpen(true)}
+          >
             <BsPlus size={24} /> Novo agendamento
           </button>
         </div>
       </section>
+      <NovoAgendamentoModal
+        isModalOpen={isModalOpen}
+        handleClose={() => setIsModalOpen(false)}
+        handleSave={handleSaveAgendamento}
+      />
+      <EditarAgendamentoModal
+        isVisible={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        agendamento={selectedAppointment}
+        onUpdate={handleUpdateAgendamento}
+      />
+      <DeletarAgendamentoModal
+        isVisible={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        appointment={selectedAppointment}
+        onDelete={handleDeleteAgendamento}
+      />
 
-      {view === "month" && <MesView currentDate={currentDate} />}
-      {view === "week" && <SemanaView currentDate={currentDate} />}
-      {view === "day" && <DiaView currentDate={currentDate} />}
+      {view === "month" && (
+        <MesView
+          currentDate={currentDate}
+          appointments={appointments}
+          handleEdit={handleEditAgendamento}
+          handleDelete={(appointment) => {
+            setSelectedAppointment(appointment);
+            setIsDeleteModalOpen(true);
+          }}
+        />
+      )}
+      {view === "week" && (
+        <SemanaView
+          currentDate={currentDate}
+          appointments={appointments}
+          handleEdit={handleEditAgendamento}
+          handleDelete={(appointment) => {
+            setSelectedAppointment(appointment);
+            setIsDeleteModalOpen(true);
+          }}
+        />
+      )}
+      {view === "day" && (
+        <DiaView
+          currentDate={currentDate}
+          appointments={appointments}
+          handleEdit={handleEditAgendamento}
+          handleDelete={(appointment) => {
+            setSelectedAppointment(appointment);
+            setIsDeleteModalOpen(true);
+          }}
+        />
+      )}
     </div>
   );
 };

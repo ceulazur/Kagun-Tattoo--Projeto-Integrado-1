@@ -8,10 +8,16 @@ import {
   startOfWeek,
 } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { WEEK_DAYS } from "../../utils/constants";
+import CalendarPopUp from "./modals/CalendarPopUp";
 
-const MesView = ({ currentDate }) => {
+const MesView = ({ currentDate, appointments, handleEdit, handleDelete }) => {
+  const [monthAppointments, setMonthAppointments] = useState([]);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [openPopUp, setOpenPopUp] = useState(false);
+  const [popUpCoordinates, setPopUpCoordinates] = useState(null);
+
   const start = startOfMonth(currentDate);
   const end = endOfMonth(currentDate);
 
@@ -32,8 +38,28 @@ const MesView = ({ currentDate }) => {
     }
   });
 
+  useEffect(() => {
+    const filteredAppointments = appointments.filter((appointment) => {
+      const appointmentDate = new Date(appointment.horario);
+      return (
+        format(appointmentDate, "MM") === format(currentDate, "MM") &&
+        format(appointmentDate, "yyyy") === format(currentDate, "yyyy")
+      );
+    });
+
+    setMonthAppointments(filteredAppointments);
+  }, [appointments, currentDate]);
+
   return (
     <div className="bg-white rounded d-flex flex-column h-100">
+      <CalendarPopUp
+        coordinates={popUpCoordinates}
+        openPopUp={openPopUp}
+        setOpenPopUp={setOpenPopUp}
+        appointment={selectedAppointment}
+        handleEdit={handleEdit}
+        handleDelete={handleDelete}
+      />
       <div className="d-flex w-100">
         {weekDays.map((day) => (
           <div
@@ -51,7 +77,7 @@ const MesView = ({ currentDate }) => {
             {week.map((day, dayIndex) => (
               <div
                 key={day}
-                className={`flex-fill text-center border-right border-bottom d-flex justify-content-center p-1
+                className={`text-center border-right border-bottom d-flex flex-column align-items-center justify-content-between p-1 
                    ${
                      format(day, "MM") !== format(currentDate, "MM")
                        ? "text-muted"
@@ -59,18 +85,58 @@ const MesView = ({ currentDate }) => {
                    } `}
                 style={{
                   width: "14.28%",
+                  height: "170px",
                   borderRight: dayIndex === 6 ? "none" : "1px solid #dee2e6",
                   borderBottom:
                     index === weeks.length - 1 ? "none" : "1px solid #dee2e6",
                 }}
               >
                 <span
-                  className={` d-flex p-1 rounded-circle aspect-ratio-1  justify-content-center align-items-center
+                  className={`d-flex p-1 rounded-circle aspect-ratio-1 justify-content-center align-items-center 
                     ${isToday(day) ? "bg-custom-primary text-white" : ""}`}
                   style={{ width: "32px", height: "32px" }}
                 >
                   {format(day, "d", { locale: ptBR })}
                 </span>
+
+                <div
+                  className="d-flex flex-column align-items-center w-100"
+                  style={{ overflow: "auto" }}
+                >
+                  {monthAppointments.map((appointment) => {
+                    const appointmentDate = new Date(appointment.horario);
+                    const appointmentDayMatches =
+                      format(appointmentDate, "yyyy-MM-dd") ===
+                      format(day, "yyyy-MM-dd");
+
+                    const appointmentMonthMatches =
+                      format(appointmentDate, "MM") ===
+                      format(currentDate, "MM");
+
+                    if (appointmentDayMatches && appointmentMonthMatches) {
+                      return (
+                        <div
+                          key={appointment.id}
+                          className="button button-primary text-left mb-1"
+                          style={{
+                            cursor: "pointer",
+                          }}
+                          onClick={(e) => {
+                            setSelectedAppointment(appointment);
+                            setPopUpCoordinates({
+                              x: e.clientX,
+                              y: e.clientY,
+                            });
+                            setOpenPopUp(true);
+                          }}
+                        >
+                          <p>{appointment?.nomeCliente}</p>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })}
+                </div>
               </div>
             ))}
           </div>
