@@ -1,14 +1,14 @@
-import { prisma } from '../config/prismaClient.js';
+import prisma from '../config/prismaSingleton.js';
 import NotFoundError from '../errors/NotFoundError.js';
 import BadRequestError from '../errors/BadRequestError.js';
 
 class Service {
-    constructor(modelName){
+    constructor(modelName) {
         this.model = modelName;
     }
 
     // POST
-    async criarRegistro(data){
+    async criarRegistro(data) {
         try {
             return await prisma[this.model].create({ data });
         } catch (erro) {
@@ -17,7 +17,7 @@ class Service {
     }
 
     // GET all
-    async listarRegistros(where = {}, extras = {}){
+    async listarRegistros(where = {}, extras = {}) {
         try {
             return await prisma[this.model].findMany({ where, ...extras });
         } catch (erro) {
@@ -26,7 +26,7 @@ class Service {
     }
 
     // GET by Id
-    async buscarRegistroPorId(id){
+    async buscarRegistroPorId(id) {
         try {
             const registro = await prisma[this.model].findUnique({ where: { id } });
 
@@ -39,7 +39,7 @@ class Service {
     }
 
     // GET by any field
-    async buscarRegistroPorCampo(where, extras = {}, throwError = true){
+    async buscarRegistroPorCampo(where, extras = {}, throwError = true) {
         try {
             // Remove campos undefined antes de passar para o Prisma
             const filtrosValidos = Object.fromEntries(
@@ -59,7 +59,7 @@ class Service {
     }
 
     // GET first by any field
-    async buscarPrimeiroRegistroPorCampo(where, include = {}){
+    async buscarPrimeiroRegistroPorCampo(where, include = {}) {
         try {
             return await prisma[this.model].findFirst({ where, include }) || null;
         } catch (erro) {
@@ -71,7 +71,7 @@ class Service {
     async atualizarRegistro(id, data) {
         try {
             await this.buscarRegistroPorId(id);
-            
+
             return await prisma[this.model].update({ where: { id }, data });
         } catch (erro) {
             throw new BadRequestError(`Erro ao atualizar registro: ${erro.message}`);

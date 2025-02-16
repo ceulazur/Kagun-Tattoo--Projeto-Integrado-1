@@ -2,7 +2,7 @@ import Service from './Service.js';
 import FornecedorService from './FornecedorService.js';
 import BadRequestError from '../errors/BadRequestError.js';
 import { DateTime } from 'luxon';
-import { prisma } from '../config/prismaClient.js';
+import prisma from '../config/prismaSingleton.js';
 
 class ProdutoService extends Service {
     constructor() {
@@ -15,7 +15,7 @@ class ProdutoService extends Service {
 
         const dataValidade = DateTime.fromISO(validade);
         if (!dataValidade.isValid) throw new BadRequestError('Data de validade inválida.');
-        
+
         const fornecedor = await FornecedorService.buscarRegistroPorId(idFornecedor);
         if (!fornecedor) throw new NotFoundError('Fornecedor não encontrado.');
 
@@ -39,7 +39,7 @@ class ProdutoService extends Service {
     async listarProdutosEstoqueBaixo() {
         const produtos = await this.listarRegistros();
         return produtos.filter(produto => produto.quantidade < produto.estoqueMinimo);
-    }    
+    }
 
     async buscarProdutoPorId(id) {
         return this.buscarRegistroPorId(id);
@@ -60,30 +60,30 @@ class ProdutoService extends Service {
 
     async excluirProduto(id, forcarExclusao = false) {
         const produto = await this.buscarRegistroPorId(id);
-    
+
         if (produto.quantidade > 0) {
             if (!forcarExclusao) throw new BadRequestError('Não é possível excluir um produto com estoque disponível.');
-    
+
             // Zera o estoque antes de excluir.
             await this.atualizarRegistro(id, { quantidade: 0 });
         }
-    
+
         return this.excluirRegistro(id);
     }
 
     async reduzirEstoque(produtosConsumidos) {
         for (const { idProduto, quantidadeUsada } of produtosConsumidos) {
-            if (!idProduto || quantidadeUsada === undefined || quantidadeUsada <= 0) 
+            if (!idProduto || quantidadeUsada === undefined || quantidadeUsada <= 0)
                 throw new BadRequestError(`Quantidade inválida para reduzir estoque do produto com ID ${idProduto}.`);
 
             const produto = await this.buscarRegistroPorId(idProduto);
-    
+
             if (produto.quantidade < quantidadeUsada)
                 throw new BadRequestError(`Estoque insuficiente para o produto ${produto.nome}.`);
-    
+
             const novaQuantidade = produto.quantidade - quantidadeUsada;
             await this.atualizarRegistro(idProduto, { quantidade: novaQuantidade });
-    
+
             // Disparar notificação futuramente
             if (novaQuantidade <= produto.estoqueMinimo)
                 console.warn(`Alerta: Estoque do produto ${produto.nome} está abaixo do limite mínimo!`);
