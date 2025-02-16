@@ -1,5 +1,7 @@
 import Controller from './Controller.js';
 import SessaoService from '../services/SessaoService.js';
+import SessaoIterator from '../iterators/SessaoIterator.js';
+
 
 class SessaoController extends Controller {
     constructor(){
@@ -28,20 +30,28 @@ class SessaoController extends Controller {
 
     async listarSessoes(req, res, next) {
         try {
+            console.log("Filtros recebidos:", req.filtros);
+            console.log("Paginação recebida:", req.paginacao);
+
             const sessoes = await this.service.listarSessoes(req.filtros, req.paginacao);
+            console.log("Sessões encontradas:", sessoes);
             const iterator = new SessaoIterator(sessoes, req.filtros);
+            console.log("Iterator criado com sucesso!");
 
             // Permitir ordenação dinâmica antes de iterar
-            if (req.query.ordenarPor)
+            if (req.query.ordenarPor){
                 iterator.ordenarPor(req.query.ordenarPor, req.query.ordem || 'asc');
-
+                console.log("Ordenação aplicada:", req.query.ordenarPor, req.query.ordem);
+            }
             let sessoesFiltradas = [];
             while (iterator.temProximo()) {
                 sessoesFiltradas.push(iterator.proximo());
             }
 
+            console.log("Sessões filtradas pelo Iterator:", sessoesFiltradas);
             return res.status(200).json(sessoesFiltradas);
         } catch (erro) {
+            console.error("Erro ao listar sessões:", erro);
             next(erro);
         }
     }
