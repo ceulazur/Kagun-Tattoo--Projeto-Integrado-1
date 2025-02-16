@@ -29,8 +29,18 @@ class SessaoController extends Controller {
     async listarSessoes(req, res, next) {
         try {
             const sessoes = await this.service.listarSessoes(req.filtros, req.paginacao);
+            const iterator = new SessaoIterator(sessoes, req.filtros);
 
-            return res.status(200).json(sessoes);
+            // Permitir ordenação dinâmica antes de iterar
+            if (req.query.ordenarPor)
+                iterator.ordenarPor(req.query.ordenarPor, req.query.ordem || 'asc');
+
+            let sessoesFiltradas = [];
+            while (iterator.temProximo()) {
+                sessoesFiltradas.push(iterator.proximo());
+            }
+
+            return res.status(200).json(sessoesFiltradas);
         } catch (erro) {
             next(erro);
         }
