@@ -1,19 +1,22 @@
 import { Prisma } from '@prisma/client';
 import BaseError from '../errors/BaseError.js';
 import ErrorFactory from '../errors/ErrorFactory.js';
+import errorMessages from '../errors/errorsMessages.js';
 
 const errorMiddleware = (err, req, res, next) => {
-    // Se o erro já for um BaseError, simplesmente envia a resposta.
-    if (err instanceof BaseError)
-        return err.enviarResposta(res);
+    // Vê se é um Erro básico
+    if (err instanceof BaseError) return err.enviarResposta(res);
 
-    // Se for um erro do Prisma, usa o ErrorFactory para traduzi-lo para um erro customizado.
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
         const erroPrisma = ErrorFactory.criarErroPrisma(err);
         return erroPrisma.enviarResposta(res);
     }
 
-    // Se não for nenhum dos casos anteriores, cria um erro genérico e responde.
+    // Buscar no array de mensagens de erro um match
+    const erroEncontrado = errorMessages.find(e => err.message.startsWith(e.mensagem));
+    if(erroEncontrado) return ErrorFactory.criarErro(erroEncontrado.tipo, err.message).enviarResposta(res);
+
+    // Se não for um erro mapeado, trata como erro interno
     const erroGenerico = ErrorFactory.criarErro('BaseError', 'Erro interno do servidor.');
     return erroGenerico.enviarResposta(res);
 };
