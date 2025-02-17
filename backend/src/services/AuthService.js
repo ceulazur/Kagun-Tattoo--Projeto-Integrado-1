@@ -2,8 +2,6 @@ import Service from './Service.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { jwtSecret } from '../config/config.js';
-import BadRequestError from '../errors/BadRequestError.js';
-import UnauthorizedError from '../errors/UnauthorizedError.js';
 
 class AuthService extends Service {
     constructor(){
@@ -11,15 +9,15 @@ class AuthService extends Service {
     }
 
     async loginTatuador({ email, senha }){
-        if (!email || !senha) throw new BadRequestError('E-mail e senha são obrigatórios.');
+        if (!email || !senha) throw new Error('E-mail e senha são obrigatórios.');
 
         // Buscando o tatuador pelo email
         const tatuador = await this.buscarRegistroPorCampo({ email });
-        if(!tatuador) throw new UnauthorizedError('E-mail ou senha inválidos.');
+        if(!tatuador) throw new Error('E-mail ou senha inválidos.');
 
         // Verificando a senha
         const senhaValida = await bcrypt.compare(senha, tatuador.senha);
-        if(!senhaValida) throw new UnauthorizedError('E-mail ou senha inválidos.');
+        if(!senhaValida) throw new Error('E-mail ou senha inválidos.');
 
         // Gerando o Token JWT
         const token = jwt.sign(

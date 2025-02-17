@@ -1,7 +1,5 @@
 import Service from './Service.js';
 import ProdutoService from './ProdutoService.js';
-import BadRequestError from '../errors/BadRequestError.js';
-import ConflictError from '../errors/ConflictError.js';
 import { DateTime } from 'luxon';
 
 class SessaoService extends Service {
@@ -11,18 +9,18 @@ class SessaoService extends Service {
 
     async agendarSessao({ idCliente, idTatuador, dataHorario }){
         if (!idCliente || !idTatuador || !dataHorario)
-            throw new BadRequestError('Todos os campos são obrigatórios.');
+            throw new Error('Todos os campos são obrigatórios.');
 
         await new Service('cliente').buscarRegistroPorId(idCliente);
         await new Service('tatuador').buscarRegistroPorId(idTatuador);
 
         // Valida se a data é no futuro
         const dataHora = DateTime.fromISO(dataHorario);
-        if (dataHora <= DateTime.now()) throw new BadRequestError('Data e horário devem ser no futuro.');
+        if (dataHora <= DateTime.now()) throw new Error('Data e horário devem ser no futuro.');
 
         // Verifica se já existe uma sessão no mesmo horário para este tatuador
         const conflito = await this.buscarPrimeiroRegistroPorCampo( { idTatuador, dataHorario: dataHora.toJSDate() } );
-        if (conflito) throw new ConflictError('Já existe uma sessão agendada nesse horário. Escolha outro horário.');
+        if (conflito) throw new Error('Já existe uma sessão agendada nesse horário. Escolha outro horário.');
 
         return this.criarRegistro({
             idCliente, idTatuador, dataHorario: dataHora.toJSDate()
@@ -58,11 +56,11 @@ class SessaoService extends Service {
         if (novaDataHorario){
             // Valida se a sessão já passou
             const dataHoraAtual = DateTime.fromJSDate(sessao.dataHorario);
-            if (dataHoraAtual <= DateTime.now()) throw new BadRequestError('Não é possível reagendar sessões passadas.');
+            if (dataHoraAtual <= DateTime.now()) throw new Error('Não é possível reagendar sessões passadas.');
 
             // Valida se o novo horário é no futuro
             const novoDataHora = DateTime.fromISO(novaDataHorario).startOf('second'); // 🔥 Remove precisão extra
-            if (novoDataHora <= DateTime.now()) throw new BadRequestError('O novo horário deve ser no futuro.');
+            if (novoDataHora <= DateTime.now()) throw new Error('O novo horário deve ser no futuro.');
 
             // Verifica se já existe uma sessão no mesmo horário para esse tatuador (exceto a própria sessão)
             const conflito = await this.buscarPrimeiroRegistroPorCampo({
@@ -70,7 +68,7 @@ class SessaoService extends Service {
                 dataHorario: novoDataHora.toJSDate()
             });
             // 
-            if (conflito && conflito.id !== idSessao) throw new ConflictError('Já existe uma sessão agendada nesse horário para esse tatuador.');
+            if (conflito && conflito.id !== idSessao) throw new Error('Já existe uma sessão agendada nesse horário para esse tatuador.');
 
             dadosAtualizados.dataHorario = novoDataHora.toJSDate();
         }
@@ -78,7 +76,7 @@ class SessaoService extends Service {
         if (novoStatus) {
             if (novoStatus === 'concluida') {
                 if (!produtosConsumidos || produtosConsumidos.length === 0) 
-                    throw new BadRequestError('É necessário informar os produtos consumidos para concluir a sessão.');
+                    throw new Error('É necessário informar os produtos consumidos para concluir a sessão.');
     
                 await ProdutoService.reduzirEstoque(produtosConsumidos);
             }
@@ -94,7 +92,7 @@ class SessaoService extends Service {
 
         const dataHoraAtual = DateTime.fromJSDate(sessao.dataHorario);
         if (dataHoraAtual <= DateTime.now()) 
-            throw new BadRequestError('Não é possível excluir sessões passadas.');
+            throw new Error('Não é possível excluir sessões passadas.');
 
         return this.excluirRegistro(idSessao);
     }
@@ -103,8 +101,8 @@ class SessaoService extends Service {
         const sessao = await this.buscarRegistroPorId(idSessao);
 
         const dataHoraAtual = DateTime.fromJSDate(sessao.dataHorario);
-        if (dataHoraAtual <= DateTime.now()) throw new BadRequestError('Não é possível cancelar sessões passadas.');
-        if (sessao.status === 'cancelada')   throw new BadRequestError('Essa sessão já foi cancelada.');
+        if (dataHoraAtual <= DateTime.now()) throw new Error('Não é possível cancelar sessões passadas.');
+        if (sessao.status === 'cancelada')   throw new Error('Essa sessão já foi cancelada.');
 
         return this.atualizarRegistro(idSessao, { status: 'cancelada' });
     }

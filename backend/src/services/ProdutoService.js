@@ -1,8 +1,6 @@
 import Service from './Service.js';
 import FornecedorService from './FornecedorService.js';
-import BadRequestError from '../errors/BadRequestError.js';
 import { DateTime } from 'luxon';
-import prisma from '../config/prismaSingleton.js';
 
 class ProdutoService extends Service {
     constructor() {
@@ -11,13 +9,13 @@ class ProdutoService extends Service {
 
     async cadastrarProduto({ nome, lote, validade, quantidade, categoria, estoqueMinimo, idFornecedor }) {
         if (!nome || !lote || !validade || quantidade === undefined || !categoria || estoqueMinimo === undefined || !idFornecedor)
-            throw new BadRequestError('Todos os campos são obrigatórios.');
+            throw new Error('Todos os campos são obrigatórios.');
 
         const dataValidade = DateTime.fromISO(validade);
-        if (!dataValidade.isValid) throw new BadRequestError('Data de validade inválida.');
+        if (!dataValidade.isValid) throw new Error('Data de validade inválida.');
 
         const fornecedor = await FornecedorService.buscarRegistroPorId(idFornecedor);
-        if (!fornecedor) throw new NotFoundError('Fornecedor não encontrado.');
+        if (!fornecedor) throw new Error('Fornecedor não encontrado.');
 
         const novoProduto = await this.criarRegistro({
             nome,
@@ -47,13 +45,13 @@ class ProdutoService extends Service {
 
     async atualizarProduto(id, dadosAtualizados) {
         if (Object.keys(dadosAtualizados).length === 0)
-            throw new BadRequestError('Nenhuma informação foi fornecida para atualização.');
+            throw new Error('Nenhuma informação foi fornecida para atualização.');
 
         const produtoAtual = await this.buscarRegistroPorId(id);
         const dadosSaoIguais = Object.keys(dadosAtualizados).every(
             (key) => produtoAtual[key] === dadosAtualizados[key]
         );
-        if (dadosSaoIguais) throw new BadRequestError('Nenhuma alteração foi feita nos dados.');
+        if (dadosSaoIguais) throw new Error('Nenhuma alteração foi feita nos dados.');
 
         return this.atualizarRegistro(id, dadosAtualizados);
     }
@@ -62,7 +60,7 @@ class ProdutoService extends Service {
         const produto = await this.buscarRegistroPorId(id);
 
         if (produto.quantidade > 0) {
-            if (!forcarExclusao) throw new BadRequestError('Não é possível excluir um produto com estoque disponível.');
+            if (!forcarExclusao) throw new Error('Não é possível excluir um produto com estoque disponível.');
 
             // Zera o estoque antes de excluir.
             await this.atualizarRegistro(id, { quantidade: 0 });
@@ -74,12 +72,12 @@ class ProdutoService extends Service {
     async reduzirEstoque(produtosConsumidos) {
         for (const { idProduto, quantidadeUsada } of produtosConsumidos) {
             if (!idProduto || quantidadeUsada === undefined || quantidadeUsada <= 0)
-                throw new BadRequestError(`Quantidade inválida para reduzir estoque do produto com ID ${idProduto}.`);
+                throw new Error(`Quantidade inválida para reduzir estoque do produto.`);
 
             const produto = await this.buscarRegistroPorId(idProduto);
 
             if (produto.quantidade < quantidadeUsada)
-                throw new BadRequestError(`Estoque insuficiente para o produto ${produto.nome}.`);
+                throw new Error(`Estoque insuficiente.`);
 
             const novaQuantidade = produto.quantidade - quantidadeUsada;
             await this.atualizarRegistro(idProduto, { quantidade: novaQuantidade });

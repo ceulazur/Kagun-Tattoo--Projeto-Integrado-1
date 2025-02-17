@@ -1,6 +1,4 @@
 import prisma from '../config/prismaSingleton.js';
-import NotFoundError from '../errors/NotFoundError.js';
-import BadRequestError from '../errors/BadRequestError.js';
 
 class Service {
     constructor(modelName) {
@@ -12,7 +10,7 @@ class Service {
         try {
             return await prisma[this.model].create({ data });
         } catch (erro) {
-            throw new BadRequestError(`Erro ao criar registro: ${erro.message}`);
+            throw new Error(`Erro ao criar registro.`);
         }
     }
 
@@ -21,7 +19,7 @@ class Service {
         try {
             return await prisma[this.model].findMany({ where, ...extras });
         } catch (erro) {
-            throw new BadRequestError(`Erro ao buscar registros: ${erro.message}`);
+            throw new Error(`Erro ao buscar registros.`);
         }
     }
 
@@ -30,11 +28,11 @@ class Service {
         try {
             const registro = await prisma[this.model].findUnique({ where: { id } });
 
-            if (!registro) throw new NotFoundError('Registro não encontrado.');
+            if (!registro) throw new Error('Registro não encontrado.');
 
             return registro;
         } catch (erro) {
-            throw new BadRequestError(`Erro ao buscar registro por ID: ${erro.message}`);
+            throw new Error(`Erro ao buscar registro por ID.`);
         }
     }
 
@@ -50,11 +48,11 @@ class Service {
 
             const registro = await prisma[this.model].findUnique({ where, ...extras });
 
-            if (!registro && throwError) throw new NotFoundError('Registro não encontrado.');
+            if (!registro && throwError) throw new Error('Registro não encontrado.');
 
             return registro;
         } catch (erro) {
-            throw new BadRequestError(`Erro ao buscar registro em ${this.model}: ${erro.message}`);
+            throw new Error(`Erro ao buscar registro.`);
         }
     }
 
@@ -63,7 +61,7 @@ class Service {
         try {
             return await prisma[this.model].findFirst({ where, include }) || null;
         } catch (erro) {
-            throw new BadRequestError(`Erro ao buscar primeiro registro: ${erro.message}`);
+            throw new Error(`Erro ao buscar primeiro registro.`);
         }
     }
 
@@ -74,7 +72,7 @@ class Service {
 
             return await prisma[this.model].update({ where: { id }, data });
         } catch (erro) {
-            throw new BadRequestError(`Erro ao atualizar registro: ${erro.message}`);
+            throw new Error(`Erro ao atualizar registro.`);
         }
     }
 
@@ -84,7 +82,7 @@ class Service {
             await this.buscarRegistroPorId(id);
             return await prisma[this.model].delete({ where: { id } });
         } catch (erro) {
-            throw new BadRequestError(`Erro ao excluir registro: ${erro.message}`);
+            throw new Error(`Erro ao excluir registro.`);
         }
     }
 }
