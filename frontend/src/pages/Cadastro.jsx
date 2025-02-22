@@ -16,7 +16,7 @@ const Register = () => {
   const [name, setName] = useState("");
   const [cpf, setCpf] = useState("");
   const [email, setEmail] = useState("");
-  const [telefone, setTelefone] = useState("");
+  const [telefone, setTelefone] = useState(""); // Changed from phone
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const cpfInputRef = useRef(null);
@@ -24,7 +24,14 @@ const Register = () => {
   const onFinish = async () => {
     try {
       setError(null);
-      if (!name || !cpf || !email || !telefone || !password || !confirmPassword) {
+      if (
+        !name ||
+        !cpf ||
+        !email ||
+        !telefone ||
+        !password ||
+        !confirmPassword
+      ) {
         throw new Error("Todos os campos são obrigatórios");
       }
       if (!validateCPF(cpf)) {
@@ -36,7 +43,7 @@ const Register = () => {
       if (password !== confirmPassword) {
         throw new Error("As senhas não coincidem");
       }
-      await registerUser(cpf, name, email, telefone, password);
+      await registerUser(cpf, name, email, telefone, password); // Changed from phone
       message.success("Cadastro realizado com sucesso!");
       navigate("/login");
     } catch (err) {
@@ -105,20 +112,24 @@ const Register = () => {
           >
             <Input placeholder="Email" />
           </Form.Item>
-
           <Form.Item
-            label="Telefone"
+            label="telefone"
             name="telefone"
             rules={[
               { required: true, message: "Por favor, insira seu telefone!" },
             ]}
-            value={email}
+            value={telefone}
             onChange={(e) => setTelefone(e.target.value)}
             className="mb-3"
           >
-            <Input placeholder="Telefone" />
+            <InputMask
+              mask="(99) 99999-9999"
+              value={telefone}
+              onChange={(e) => setTelefone(e.target.value)}
+            >
+              {(inputProps) => <Input {...inputProps} placeholder="telefone" />}
+            </InputMask>
           </Form.Item>
-
           <Form.Item
             label="Senha"
             name="password"
