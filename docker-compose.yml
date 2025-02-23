@@ -52,19 +52,19 @@ services:
       - kagun-network
 
   
-  frontend:
-    container_name: front-kagun
-    build: ./frontend
-    image: kagun_frontend
-    ports:
-      - "5173:5173"
-    volumes:
-      - ./frontend:/usr/app
-      - /usr/app/node_modules
-    networks:
-      - kagun-network
-    depends_on:
-      - backend
+  # frontend:
+  #   container_name: front-kagun
+  #   build: ./frontend
+  #   image: kagun_frontend
+  #   ports:
+  #     - "5173:5173"
+  #   volumes:
+  #     - ./frontend:/usr/app
+  #     - /usr/app/node_modules
+  #   networks:
+  #     - kagun-network
+  #   depends_on:
+  #     - backend
 
 volumes:
   postgres_data:

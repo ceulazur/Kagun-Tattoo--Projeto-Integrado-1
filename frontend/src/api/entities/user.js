@@ -16,12 +16,13 @@ export const loginUser = async (email, password) => {
 };
 
 // Função para registrar usuário
-export const registerUser = async (cpf, nome, email, password) => {
+export const registerUser = async (cpf, nome, email, telefone, password) => {
   try {
     const response = await postMethod(URLS.CADASTRO, {
       cpf: cpf,
       nome: nome,
       email: email,
+      telefone: telefone,
       senha: password,
     });
     return response.data;
