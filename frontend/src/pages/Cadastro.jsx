@@ -16,6 +16,7 @@ const Register = () => {
   const [name, setName] = useState("");
   const [cpf, setCpf] = useState("");
   const [email, setEmail] = useState("");
+  const [telefone, setTelefone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const cpfInputRef = useRef(null);
@@ -23,7 +24,7 @@ const Register = () => {
   const onFinish = async () => {
     try {
       setError(null);
-      if (!name || !cpf || !email || !password || !confirmPassword) {
+      if (!name || !cpf || !email || !telefone || !password || !confirmPassword) {
         throw new Error("Todos os campos são obrigatórios");
       }
       if (!validateCPF(cpf)) {
@@ -35,7 +36,7 @@ const Register = () => {
       if (password !== confirmPassword) {
         throw new Error("As senhas não coincidem");
       }
-      await registerUser(cpf, name, email, password);
+      await registerUser(cpf, name, email, telefone, password);
       message.success("Cadastro realizado com sucesso!");
       navigate("/login");
     } catch (err) {
@@ -104,6 +105,20 @@ const Register = () => {
           >
             <Input placeholder="Email" />
           </Form.Item>
+
+          <Form.Item
+            label="Telefone"
+            name="telefone"
+            rules={[
+              { required: true, message: "Por favor, insira seu telefone!" },
+            ]}
+            value={email}
+            onChange={(e) => setTelefone(e.target.value)}
+            className="mb-3"
+          >
+            <Input placeholder="Telefone" />
+          </Form.Item>
+
           <Form.Item
             label="Senha"
             name="password"
