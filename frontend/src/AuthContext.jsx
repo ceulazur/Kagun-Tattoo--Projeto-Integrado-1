@@ -108,7 +108,8 @@ const AuthProvider = ({ children }) => {
     try {
       const data = await loginUser(email, password);
       if (data) {
-        const { token } = data;
+        const { token, tatuador } = data;
+        localStorage.setItem("tatuador", JSON.stringify(tatuador));
         const encryptedToken = encryptToken(token, secretKey);
         localStorage.setItem("jwt", encryptedToken);
         dispatch({

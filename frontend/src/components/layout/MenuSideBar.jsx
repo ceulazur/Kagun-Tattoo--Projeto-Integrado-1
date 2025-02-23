@@ -14,7 +14,10 @@ const MenuSideBar = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
   const { logout } = useContext(AuthContext);
 
-  const [userName, setUserName] = useState("${userName}");
+  const [userName, setUserName] = useState(() => {
+    const user = JSON.parse(localStorage.getItem("tatuador"));
+    return user ? user.nome : "";
+  });
 
   const items = [
     {
@@ -81,6 +84,7 @@ const MenuSideBar = ({ children }) => {
   useEffect(() => {
     setSelectedKey(findSelectedKey(location.pathname));
     setOpenKeys(findOpenKeys(location.pathname));
+    // console.log(JSON.parse(localStorage.getItem("tatuador")).nome);
   }, [location.pathname]);
 
   const handleMenuClick = ({ key }) => {

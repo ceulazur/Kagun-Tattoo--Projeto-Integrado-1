@@ -10,6 +10,11 @@ export const URLS = {
   AGENDAR_SESSAO: `${API_END_POINT}/sessoes/agendar`,
   REAGENDAR_SESSAO: `${API_END_POINT}/sessoes/reagendar`,
   CANCELAR_SESSAO: `${API_END_POINT}/sessoes/cancelar`,
+  CRIAR_USUARIO: `${API_END_POINT}/clientes/cadastrar`,
+  LISTAR_USUARIOS: `${API_END_POINT}/clientes/listar`,
+  BUSCAR_USUARIO_POR_ID: `${API_END_POINT}/clientes/`,
+  ATUALIZAR_USUARIO: `${API_END_POINT}/clientes/`,
+  DELETAR_USUARIO: `${API_END_POINT}/clientes/`,
 
   // endpoints para fornecedores
   FORNECEDORES: `${API_END_POINT}/fornecedores`,
@@ -18,4 +23,3 @@ export const URLS = {
   ATUALIZAR_FORNECEDOR: `${API_END_POINT}/fornecedores/atualizar`,
   EXCLUIR_FORNECEDOR: `${API_END_POINT}/fornecedores/excluir`,
 };
-

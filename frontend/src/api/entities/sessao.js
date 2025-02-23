@@ -38,9 +38,6 @@ export const reagendarSessao = async (sessaoData) => {
 
 export const cancelarSessao = async (sessaoId) => {
   try {
-    console.log("Cancelando sessão com ID:", {
-      idSessao: sessaoId,
-    });
     const response = await deleteMethodWithBody(URLS.CANCELAR_SESSAO, {
       idSessao: sessaoId,
     });

@@ -30,7 +30,6 @@ const SemanaView = ({
   const hours = HOURS;
 
   useEffect(() => {
-    console.log("appointments", appointments);
     if (appointments) {
       const filteredAppointments = appointments.filter((appointment) => {
         const appointmentDate = new Date(appointment.horario);
@@ -40,7 +39,6 @@ const SemanaView = ({
         );
       });
 
-      console.log("filteredAppointments", filteredAppointments);
       setWeekAppointments(filteredAppointments);
     }
   }, [appointments, currentDate]);

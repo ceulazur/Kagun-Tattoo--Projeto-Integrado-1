@@ -13,15 +13,15 @@ import React, { useEffect, useState } from "react";
 import { BsChevronLeft, BsChevronRight, BsPlus } from "react-icons/bs";
 import {
   agendarSessao,
+  cancelarSessao,
   listarSessoes,
   reagendarSessao,
-  cancelarSessao,
 } from "../api/entities/sessao";
 import DiaView from "../components/agenda/DiaView";
 import MesView from "../components/agenda/MesView";
+import DeletarAgendamentoModal from "../components/agenda/modals/DeletarAgendamentoModal";
 import EditarAgendamentoModal from "../components/agenda/modals/EditarAgendamentoModal";
 import NovoAgendamentoModal from "../components/agenda/modals/NovoAgendamentoModal";
-import DeletarAgendamentoModal from "../components/agenda/modals/DeletarAgendamentoModal";
 import SemanaView from "../components/agenda/SemanaView";
 
 const mockAppointments = [
@@ -76,23 +76,16 @@ const Agenda = () => {
 
   const handleGetAgendamentos = async () => {
     try {
-      const response = await listarSessoes(); // Aguarda a resposta da função listarSessoes
-      console.log("Agendamentos carregados com sucesso:", response.sessoes);
+      const response = await listarSessoes();
 
-      // Transforma as sessões para incluir o campo 'termino' com o mesmo valor de 'horario'
       const appointmentsWithTermino = response.sessoes.map((sessao) => ({
         ...sessao,
-        termino: sessao.horario, // 'termino' recebe o mesmo valor de 'horario'
+        termino: sessao.horario,
       }));
 
-      console.log(
-        "Agendamentos com termino carregados com sucesso:",
-        appointmentsWithTermino
-      );
-
-      setAppointments(appointmentsWithTermino); // Atualiza o estado com os agendamentos transformados
+      setAppointments(appointmentsWithTermino);
     } catch (error) {
-      message.error("Erro ao carregar os agendamentos. Tente novamente."); // Exibe mensagem de erro em caso de falha
+      message.error("Erro ao carregar os agendamentos. Tente novamente.");
     }
   };
 
@@ -121,7 +114,6 @@ const Agenda = () => {
   const handleSaveAgendamento = async (novoAgendamento) => {
     try {
       const response = await agendarSessao(novoAgendamento);
-      console.log("response", response);
       if (response.status == 201) {
         message.success("Agendamento salvo com sucesso!");
       }
