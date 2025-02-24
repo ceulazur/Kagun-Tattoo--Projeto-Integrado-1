@@ -1,7 +1,6 @@
 const API_END_POINT =
   import.meta.env.VITE_API_END_POINT || "http://localhost:3000";
 
-// Endpoints da API
 export const URLS = {
   LOGIN: `${API_END_POINT}/auth/login`,
   CADASTRO: `${API_END_POINT}/tatuadores/cadastrar`,
@@ -16,10 +15,15 @@ export const URLS = {
   ATUALIZAR_USUARIO: `${API_END_POINT}/clientes/`,
   DELETAR_USUARIO: `${API_END_POINT}/clientes/`,
 
-  // endpoints para fornecedores
   FORNECEDORES: `${API_END_POINT}/fornecedores`,
   LISTAR_FORNECEDORES: `${API_END_POINT}/fornecedores/listar`,
   CADASTRAR_FORNECEDOR: `${API_END_POINT}/fornecedores/cadastrar`,
-  ATUALIZAR_FORNECEDOR: `${API_END_POINT}/fornecedores/atualizar`,
-  EXCLUIR_FORNECEDOR: `${API_END_POINT}/fornecedores/excluir`,
+  ATUALIZAR_FORNECEDOR: `${API_END_POINT}/fornecedores/`,
+  EXCLUIR_FORNECEDOR: `${API_END_POINT}/fornecedores/`,
+
+  PRODUTOS: `${API_END_POINT}/produtos`,
+  LISTAR_PRODUTOS: `${API_END_POINT}/produtos/listar`,
+  CADASTRAR_PRODUTO: `${API_END_POINT}/produtos/cadastrar`,
+  ATUALIZAR_PRODUTO: `${API_END_POINT}/produtos/`,
+  EXCLUIR_PRODUTO: `${API_END_POINT}/produtos/`,
 };

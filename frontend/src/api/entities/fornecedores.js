@@ -1,4 +1,9 @@
-import { getMethod, postMethod, putMethod, deleteMethod } from "../common/api_requests";
+import {
+  deleteMethod,
+  getMethod,
+  postMethod,
+  putMethod,
+} from "../common/api_requests";
 import { URLS } from "../common/endpoints";
 
 // Função para listar todos os fornecedores
@@ -41,8 +46,7 @@ export const cadastrarFornecedor = async (nome, telefone, email) => {
 // Função para atualizar um fornecedor existente
 export const atualizarFornecedor = async (id, nome, telefone, email) => {
   try {
-    const response = await putMethod(URLS.ATUALIZAR_FORNECEDOR, {
-      id,
+    const response = await putMethod(URLS.ATUALIZAR_FORNECEDOR + id, {
       nome,
       telefone,
       email,
