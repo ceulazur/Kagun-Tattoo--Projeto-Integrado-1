@@ -75,6 +75,15 @@
       "target": [
         "portable"
       ]
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Office",
+      "artifactName": "kagun-tattoo-${version}.${ext}",
+      "description": "Kagun Tattoo Application"
     }
   }
 }

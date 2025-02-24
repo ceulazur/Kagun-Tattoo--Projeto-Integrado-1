@@ -1,16 +1,1 @@
-"use strict";
-const { contextBridge, ipcRenderer } = require("electron");
-contextBridge.exposeInMainWorld("api", {
-  send: (channel, data) => {
-    const validChannels = ["toMain"];
-    if (validChannels.includes(channel)) {
-      ipcRenderer.send(channel, data);
-    }
-  },
-  receive: (channel, func) => {
-    const validChannels = ["fromMain"];
-    if (validChannels.includes(channel)) {
-      ipcRenderer.on(channel, (event, ...args) => func(...args));
-    }
-  }
-});
+"use strict";const{contextBridge:a,ipcRenderer:i}=require("electron");a.exposeInMainWorld("api",{send:(e,n)=>{["toMain"].includes(e)&&i.send(e,n)},receive:(e,n)=>{["fromMain"].includes(e)&&i.on(e,(l,...d)=>n(...d))}});
