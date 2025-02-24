@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tatuador {
+  id       Int      @id @default(autoincrement())
+  nome     String
+  cpf      String   @unique
+  telefone String   @unique
+  email    String   @unique
+  senha    String
+  sessoes  Sessao[]
+}
+
+model Cliente {
+  id       Int      @id @default(autoincrement())
+  nome     String
+  telefone String   @unique
+  sessoes  Sessao[]
+}
+
+model Sessao {
+  id          Int          @id @default(autoincrement())
+  dataHorario DateTime
+  termino     DateTime?
+  status      StatusSessao @default(agendada)
+  idTatuador  Int
+  idCliente   Int
+  cliente     Cliente      @relation(fields: [idCliente], references: [id])
+  tatuador    Tatuador     @relation(fields: [idTatuador], references: [id])
+}
+
+model Produto {
+  id            Int         @id @default(autoincrement())
+  nome          String
+  lote          String
+  validade      DateTime
+  quantidade    Int
+  categoria     String
+  estoqueMinimo Int
+  idFornecedor  Int?
+  fornecedor    Fornecedor? @relation(fields: [idFornecedor], references: [id])
+}
+
+model Fornecedor {
+  id       Int       @id @default(autoincrement())
+  nome     String
+  telefone String    @unique
+  email    String    @unique
+  produtos Produto[] // Relacionamento com produtos
+}
+
+enum StatusSessao {
+  agendada
+  concluida
+  cancelada
+}

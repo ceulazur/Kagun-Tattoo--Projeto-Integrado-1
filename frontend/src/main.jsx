@@ -1,8 +1,13 @@
+import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import { AuthProvider } from "./AuthContext";
 import Router from "./routes";
+import "./styles/buttons.css";
+import "./styles/colors.css";
 import "./styles/global.css";
+import "./styles/layout.css";
+import "./styles/typography.css";
 
 function App() {
   useEffect(() => {

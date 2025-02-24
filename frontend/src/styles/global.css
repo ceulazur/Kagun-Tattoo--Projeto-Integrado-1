@@ -18,6 +18,11 @@ h6 {
   font-weight: 600;
 }
 
+p {
+  margin: 0;
+  padding: 0;
+}
+
 a {
   color: inherit;
   text-decoration: none;
@@ -25,4 +30,11 @@ a {
 
 button {
   cursor: pointer;
+  border: none;
+  outline: none;
+  background-color: transparent;
+}
+
+button:focus {
+  outline: none;
 }

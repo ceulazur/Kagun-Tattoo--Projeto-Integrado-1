@@ -1,20 +1,23 @@
-import { ProCard } from "@ant-design/pro-components";
-import { ProForm, ProFormText } from "@ant-design/pro-form";
-import { Typography, message } from "antd";
+import { Form, Input, message } from "antd";
 import React, { useContext, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../AuthContext";
-
-const { Title } = Typography;
 
 const Login = () => {
   const { login, loading } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [error, setError] = useState(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const onFinish = async (values) => {
+  const onFinish = async () => {
     try {
       setError(null);
-      await login(values.email, values.password);
-      message.success("Login realizado com sucesso!");
+      if (!email || !password) {
+        throw new Error("Email e senha são obrigatórios");
+      }
+      await login(email, password);
+      navigate("/agenda");
     } catch (err) {
       setError("Email ou senha inválidos");
       message.error("Email ou senha inválidos");
@@ -22,45 +25,62 @@ const Login = () => {
   };
 
   return (
-    <div className="container d-flex flex-column align-items-center justify-content-center vh-100">
-      <ProCard
-        className="w-100 p-4 bg-light rounded shadow"
-        style={{ maxWidth: 600 }}
-        loading={loading}
+    <div className="d-flex align-items-center justify-content-center vh-100 w-100 bg-custom-dark-gray">
+      <div
+        className="w-100 p-6 bg-custom-quaternary rounded shadow"
+        style={{ maxWidth: 400 }}
+        loading={loading.toString()}
       >
-        <Title level={2} className="mb-4">
-          Login
-        </Title>
-        <ProForm
-          onFinish={onFinish}
-          submitter={{
-            searchConfig: {
-              submitText: "Login",
-            },
-            submitButtonProps: {
-              loading: loading,
-              block: true,
-            },
-            resetButtonProps: false,
-          }}
-        >
-          <ProFormText
+        <div className="text-center mb-5 w-100">
+          <img
+            src={"assets/horizontal_logo.svg"}
+            alt="Logo"
+            className="w-100"
+          />
+        </div>
+        <Form name="login" className="d-flex flex-column" layout="vertical">
+          <Form.Item
+            label="Email"
             name="email"
-            placeholder="Email"
             rules={[
               { required: true, message: "Por favor, insira seu email!" },
             ]}
-          />
-          <ProFormText.Password
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="mb-3"
+          >
+            <Input placeholder="Email" />
+          </Form.Item>
+          <Form.Item
+            label="Senha"
             name="password"
-            placeholder="Senha"
             rules={[
               { required: true, message: "Por favor, insira sua senha!" },
             ]}
-          />
-          {error && <div className="text-danger mb-3">{error}</div>}
-        </ProForm>
-      </ProCard>
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="mb-3"
+          >
+            <Input.Password placeholder="Senha" />
+          </Form.Item>
+
+          <Form.Item className="mb-0">
+            <button
+              disabled={loading}
+              className="button button-hover"
+              onClick={onFinish}
+            >
+              Login
+            </button>
+          </Form.Item>
+        </Form>
+        <p className="text-center fs-7 mt-3">
+          Não tem uma conta?{" "}
+          <Link to="/register" className="text-hover">
+            Registre-se
+          </Link>
+        </p>
+      </div>
     </div>
   );
 };
