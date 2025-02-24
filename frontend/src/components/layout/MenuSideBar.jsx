@@ -24,7 +24,18 @@ const MenuSideBar = ({ children }) => {
       label: "Agenda",
       key: "1",
       icon: <BsCalendarWeek size={20} />,
-      link: "/agenda",
+      children: [
+        {
+          label: "Calendário",
+          key: "1-1",
+          link: "/agenda",
+        },
+        {
+          label: "Listagem",
+          key: "1-2",
+          link: "/agenda/listagem",
+        },
+      ],
     },
     {
       label: "Materiais",

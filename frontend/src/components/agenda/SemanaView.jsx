@@ -32,7 +32,7 @@ const SemanaView = ({
   useEffect(() => {
     if (appointments) {
       const filteredAppointments = appointments.filter((appointment) => {
-        const appointmentDate = new Date(appointment.horario);
+        const appointmentDate = new Date(appointment.dataHorario);
         return (
           // format(appointmentDate, "MM") === format(currentDate, "MM") &&
           format(appointmentDate, "yyyy") === format(currentDate, "yyyy")
@@ -98,20 +98,21 @@ const SemanaView = ({
               >
                 <div className="d-flex flex-column align-items-center w-100">
                   {weekAppointments.map((appointment) => {
-                    const appointmentDate = new Date(appointment.horario);
+                    const appointmentDate = new Date(appointment.dataHorario);
 
                     const appointmentDayMatches =
                       format(appointmentDate, "yyyy-MM-dd") ===
                       format(day, "yyyy-MM-dd");
 
                     const appointmentHourMatches =
-                      appointmentDate.getUTCHours() === parseInt(hour, 10);
+                      new Date(appointmentDate).getHours() ===
+                      parseInt(hour, 10);
 
                     if (appointmentDayMatches && appointmentHourMatches) {
                       const duration = appointment.termino
                         ? differenceInMinutes(
                             new Date(appointment.termino),
-                            new Date(appointment.horario)
+                            new Date(appointment.dataHorario)
                           )
                         : 1;
 
@@ -137,9 +138,10 @@ const SemanaView = ({
                             setOpenPopUp(true);
                           }}
                         >
-                          <p>{appointment?.nomeCliente}</p>
+                          <p>{appointment?.cliente?.nome}</p>
+                          <small>{appointment?.tatuador?.nome}</small>
                           {appointmentDate.toLocaleTimeString("pt-BR", {
-                            timeZone: "UTC",
+                            timeZone: "America/Sao_Paulo",
                             hour: "2-digit",
                             minute: "2-digit",
                           })}

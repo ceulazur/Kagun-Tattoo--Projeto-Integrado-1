@@ -40,7 +40,7 @@ const MesView = ({ currentDate, appointments, handleEdit, handleDelete }) => {
 
   useEffect(() => {
     const filteredAppointments = appointments.filter((appointment) => {
-      const appointmentDate = new Date(appointment.horario);
+      const appointmentDate = new Date(appointment.dataHorario);
       return (
         format(appointmentDate, "MM") === format(currentDate, "MM") &&
         format(appointmentDate, "yyyy") === format(currentDate, "yyyy")
@@ -104,7 +104,7 @@ const MesView = ({ currentDate, appointments, handleEdit, handleDelete }) => {
                   style={{ overflow: "auto" }}
                 >
                   {monthAppointments.map((appointment) => {
-                    const appointmentDate = new Date(appointment.horario);
+                    const appointmentDate = new Date(appointment.dataHorario);
                     const appointmentDayMatches =
                       format(appointmentDate, "yyyy-MM-dd") ===
                       format(day, "yyyy-MM-dd");
@@ -130,7 +130,8 @@ const MesView = ({ currentDate, appointments, handleEdit, handleDelete }) => {
                             setOpenPopUp(true);
                           }}
                         >
-                          <p>{appointment?.nomeCliente}</p>
+                          <p>{appointment?.cliente?.nome}</p>
+                          <small>{appointment?.tatuador?.nome}</small>
                         </div>
                       );
                     }

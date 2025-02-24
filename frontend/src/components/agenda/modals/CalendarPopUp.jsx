@@ -64,12 +64,12 @@ const CalendarPopUp = ({
         </div>
         <div>
           <p>
-            <strong>Cliente:</strong> {appointment.nomeCliente}
+            <strong>Cliente:</strong> {appointment.cliente.nome}
           </p>
           <p>
             <strong>Data:</strong>{" "}
-            {new Date(appointment.horario).toLocaleDateString("pt-BR", {
-              timeZone: "UTC",
+            {new Date(appointment.dataHorario).toLocaleDateString("pt-BR", {
+              timeZone: "America/Sao_Paulo",
               hour: "2-digit",
               minute: "2-digit",
             })}

@@ -1,10 +1,15 @@
 import { Button, Modal, message } from "antd";
 import React from "react";
 
-const DeletarAgendamentoModal = ({ isVisible, onClose, appointment, onDelete }) => {
+const DeletarAgendamentoModal = ({
+  isVisible,
+  onClose,
+  appointment,
+  onDelete,
+}) => {
   const handleDelete = async () => {
     try {
-      await onDelete(appointment.idSessao);
+      await onDelete(appointment.id);
       onClose();
     } catch (error) {
       message.error("Erro ao deletar o agendamento. Tente novamente.");
@@ -19,7 +24,10 @@ const DeletarAgendamentoModal = ({ isVisible, onClose, appointment, onDelete }) 
       footer={null}
       centered
     >
-      <p>Tem certeza que deseja deletar o agendamento de {appointment?.nomeCliente}?</p>
+      <p>
+        Tem certeza que deseja deletar o agendamento de{" "}
+        {appointment?.nomeCliente}?
+      </p>
       <div className="d-flex justify-content-end">
         <Button onClick={onClose} style={{ marginRight: "8px" }}>
           Cancelar

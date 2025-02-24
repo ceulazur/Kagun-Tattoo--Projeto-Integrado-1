@@ -10,6 +10,7 @@ import Cadastro from "./pages/Cadastro";
 import Error from "./pages/Error";
 import Estoque from "./pages/Estoque";
 import Fornecedores from "./pages/Fornecedores";
+import ListagemAgendamentos from "./pages/ListagemAgendamentos";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
@@ -68,6 +69,16 @@ const Router = () => {
               <ProtectedRoute>
                 <MainLayout>
                   <Fornecedores />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/agenda/listagem"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <ListagemAgendamentos />
                 </MainLayout>
               </ProtectedRoute>
             }

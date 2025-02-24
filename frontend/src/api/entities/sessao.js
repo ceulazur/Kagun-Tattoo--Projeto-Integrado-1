@@ -18,7 +18,11 @@ export const listarSessoes = async () => {
 
 export const agendarSessao = async (sessaoData) => {
   try {
-    const response = await postMethod(URLS.AGENDAR_SESSAO, sessaoData);
+    const response = await postMethod(URLS.AGENDAR_SESSAO, {
+      idCliente: sessaoData.idCliente,
+      idTatuador: sessaoData.idTatuador,
+      dataHorario: sessaoData.dataHorario,
+    });
     return response;
   } catch (error) {
     console.error("Erro ao agendar sessão:", error);
@@ -26,9 +30,14 @@ export const agendarSessao = async (sessaoData) => {
   }
 };
 
-export const reagendarSessao = async (sessaoData) => {
+export const reagendarSessao = async (sessaoData, sessaoId) => {
   try {
-    const response = await putMethod(`${URLS.REAGENDAR_SESSAO}`, sessaoData);
+    const response = await putMethod(`${URLS.REAGENDAR_SESSAO}/${sessaoId}`, {
+      idSessao: sessaoData.idSessao,
+      novaDataHorario: sessaoData.novaDataHorario,
+      novoStatus: sessaoData.novoStatus,
+      produtosConsumidos: sessaoData.produtosConsumidos,
+    });
     return response;
   } catch (error) {
     console.error("Erro ao reagendar sessão:", error);
@@ -38,9 +47,12 @@ export const reagendarSessao = async (sessaoData) => {
 
 export const cancelarSessao = async (sessaoId) => {
   try {
-    const response = await deleteMethodWithBody(URLS.CANCELAR_SESSAO, {
-      idSessao: sessaoId,
-    });
+    const response = await deleteMethodWithBody(
+      URLS.CANCELAR_SESSAO + `/${sessaoId}`,
+      {
+        id: sessaoId,
+      }
+    );
     return response;
   } catch (error) {
     console.error("Erro ao cancelar sessão:", error);

@@ -24,45 +24,6 @@ import EditarAgendamentoModal from "../components/agenda/modals/EditarAgendament
 import NovoAgendamentoModal from "../components/agenda/modals/NovoAgendamentoModal";
 import SemanaView from "../components/agenda/SemanaView";
 
-const mockAppointments = [
-  {
-    idSessao: 1,
-    nomeCliente: "Alice",
-    data: new Date("2025-01-26T10:00:00"),
-    horario: new Date("2025-01-26T11:00:00"),
-    status: "agendada",
-    termino: new Date("2025-01-26T13:00:00"),
-    tatuador: {
-      idTatuador: 1,
-      nome: "Tatuador 1",
-    },
-  },
-  {
-    idSessao: 2,
-    nomeCliente: "Bob",
-    data: new Date("2025-01-26T12:00:00"),
-    horario: new Date("2025-01-26T13:00:00"),
-    status: "concluída",
-    termino: new Date("2025-01-26T16:30:00"),
-    tatuador: {
-      idTatuador: 2,
-      nome: "Tatuador 2",
-    },
-  },
-
-  {
-    idSessao: 3,
-    nomeCliente: "Jonh",
-    data: new Date("2025-01-27T12:00:00"),
-    horario: new Date("2025-01-27T08:00:00"),
-    status: "concluída",
-    termino: new Date("2025-01-27T09:30:00"),
-    tatuador: {
-      idTatuador: 2,
-      nome: "Tatuador 2",
-    },
-  },
-];
 const Agenda = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [view, setView] = useState(() => {
@@ -77,13 +38,7 @@ const Agenda = () => {
   const handleGetAgendamentos = async () => {
     try {
       const response = await listarSessoes();
-
-      const appointmentsWithTermino = response.sessoes.map((sessao) => ({
-        ...sessao,
-        termino: sessao.horario,
-      }));
-
-      setAppointments(appointmentsWithTermino);
+      setAppointments(response);
     } catch (error) {
       message.error("Erro ao carregar os agendamentos. Tente novamente.");
     }
@@ -138,9 +93,10 @@ const Agenda = () => {
     setIsEditModalOpen(true);
   };
 
-  const handleUpdateAgendamento = async (updatedAgendamento) => {
+  const handleUpdateAgendamento = async (updatedAgendamento, appointmentId) => {
+    console.log(updatedAgendamento);
     try {
-      const response = await reagendarSessao(updatedAgendamento);
+      const response = await reagendarSessao(updatedAgendamento, appointmentId);
       if (response.status === 200) {
         message.success("Agendamento atualizado com sucesso!");
         handleGetAgendamentos();

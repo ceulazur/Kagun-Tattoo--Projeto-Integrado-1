@@ -1,51 +1,86 @@
+import { PlusOutlined } from "@ant-design/icons";
 import {
+  AutoComplete,
   Button,
   DatePicker,
   Form,
-  Input,
   Modal,
   TimePicker,
   message,
 } from "antd";
-import React, { useState } from "react";
-import { criarUsuario } from "../../../api/entities/usuario";
+import React, { useEffect, useState } from "react";
+import { criarUsuario, listarUsuarios } from "../../../api/entities/usuario";
 import NovoUsuarioModal from "../../usuarios/modals/NovoUsuarioModal";
 
 function NovoAgendamentoModal({ isModalOpen, handleClose, handleSave }) {
   const [form] = Form.useForm();
+  const [users, setUsers] = useState([]);
+  const [options, setOptions] = useState([]);
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  const loadUsers = async () => {
+    try {
+      const response = await listarUsuarios();
+      setUsers(response);
+    } catch (error) {
+      message.error("Erro ao carregar usuários");
+    }
+  };
+
+  const onSearch = (searchText) => {
+    const filtered = users
+      .filter((user) =>
+        user.nome.toLowerCase().includes(searchText.toLowerCase())
+      )
+      .map((user) => ({
+        value: user.nome,
+        label: `${user.nome} - ${user.telefone}`,
+        id: user.id,
+      }));
+    setOptions(filtered);
+  };
+
+  const onSelect = (value, option) => {
+    form.setFieldsValue({
+      idCliente: option.id,
+    });
+  };
+
+  const onFinish = async (values) => {
+    try {
+      const { idCliente, data, hora } = values;
+      const dataHora = data.hour(hora.hour()).minute(hora.minute()).second(0);
+
+      if (hora.hour() < 8 || hora.hour() > 18) {
+        throw new Error("Os agendamentos devem ser entre 08:00 e 18:00.");
+      }
+
+      const novoAgendamento = {
+        idCliente,
+        idTatuador: 1, // Assuming fixed tatuador for now
+        dataHorario: dataHora.toISOString(),
+      };
+
+      await handleSave(novoAgendamento);
+      form.resetFields();
+    } catch (error) {
+      message.error("Erro ao criar agendamento: " + error.message);
+    }
+  };
 
   const handleUserModalSave = async (userData) => {
     try {
       const response = await criarUsuario(userData);
-      form.setFieldsValue({
-        nomeCliente: userData.nome,
-        telefoneCliente: userData.telefone,
-      });
-      setIsUserModalOpen(false);
+      await loadUsers();
       message.success("Usuário cadastrado com sucesso!");
+      setIsUserModalOpen(false);
     } catch (error) {
       message.error("Erro ao cadastrar usuário: " + error.message);
     }
-  };
-
-  const onFinish = async (values) => {
-    const { nomeCliente, telefoneCliente, data, hora } = values;
-    const dataHora = data.hour(hora.hour()).minute(hora.minute()).second(0);
-
-    if (hora.hour() < 8 || hora.hour() > 18) {
-      throw new Error("Os agendamentos devem ser entre 08:00 e 18:00.");
-    }
-
-    const novoAgendamento = {
-      nomeCliente,
-      telefoneCliente,
-      data: dataHora.format("YYYY-MM-DD"),
-      horario: dataHora.format("HH:mm"),
-      idTatuador: 1,
-    };
-
-    await handleSave(novoAgendamento);
   };
 
   return (
@@ -63,46 +98,31 @@ function NovoAgendamentoModal({ isModalOpen, handleClose, handleSave }) {
           onFinish={onFinish}
           layout="vertical"
         >
-          <div className="d-flex align-items-center mb-3">
-            <Button
-              type="primary"
-              onClick={() => setIsUserModalOpen(true)}
-              style={{ marginRight: "10px" }}
-            >
-              Cadastrar Novo Cliente
-            </Button>
-          </div>
-
           <Form.Item
             name="nomeCliente"
-            label="Nome do Cliente"
-            rules={[
-              {
-                required: true,
-                message: "Por favor, insira o nome do cliente!",
-              },
-            ]}
-            className="mb-2"
+            label="Cliente"
+            className="my-2"
+            rules={[{ required: true, message: "Selecione um cliente!" }]}
           >
-            <Input />
+            <div style={{ display: "flex", gap: "8px" }}>
+              <AutoComplete
+                options={options}
+                onSearch={onSearch}
+                onSelect={onSelect}
+                placeholder="Buscar cliente"
+                style={{ flex: 1 }}
+              />
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => setIsUserModalOpen(true)}
+                className="button button-primary"
+              />
+            </div>
           </Form.Item>
 
-          <Form.Item
-            name="telefoneCliente"
-            label="Telefone do Cliente"
-            rules={[
-              {
-                required: true,
-                message: "Por favor, insira o telefone!",
-              },
-              {
-                pattern: /^\(\d{2}\) \d{5}-\d{4}$/,
-                message: "Formato inválido. Use: (99) 99999-9999",
-              },
-            ]}
-            className="mb-2"
-          >
-            <Input placeholder="(99) 99999-9999" />
+          <Form.Item name="idCliente" hidden>
+            <input type="hidden" />
           </Form.Item>
 
           <Form.Item
@@ -136,7 +156,12 @@ function NovoAgendamentoModal({ isModalOpen, handleClose, handleSave }) {
           </Form.Item>
 
           <Form.Item>
-            <Button type="primary" htmlType="submit" block>
+            <Button
+              type="primary"
+              htmlType="submit"
+              block
+              className="button button-primary mt-2"
+            >
               Salvar Agendamento
             </Button>
           </Form.Item>

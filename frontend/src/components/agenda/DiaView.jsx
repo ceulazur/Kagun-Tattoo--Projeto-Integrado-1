@@ -17,7 +17,7 @@ const DiaView = ({ currentDate, appointments, handleEdit, handleDelete }) => {
 
   useEffect(() => {
     const filteredAppointments = appointments.filter((appointment) => {
-      const appointmentDate = new Date(appointment.horario);
+      const appointmentDate = new Date(appointment.dataHorario);
       return (
         format(appointmentDate, "yyyy-MM-dd") ===
         format(currentDate, "yyyy-MM-dd")
@@ -64,15 +64,15 @@ const DiaView = ({ currentDate, appointments, handleEdit, handleDelete }) => {
             >
               <div className="d-flex flex-column align-items-center w-100">
                 {dayAppointments.map((appointment) => {
-                  const appointmentDate = new Date(appointment.horario);
+                  const appointmentDate = new Date(appointment.dataHorario);
                   const appointmentHourMatches =
-                    appointmentDate.getUTCHours() === parseInt(hour, 10);
+                    new Date(appointmentDate).getHours() === parseInt(hour, 10);
 
                   if (appointmentHourMatches) {
                     const duration = appointment.termino
                       ? differenceInMinutes(
                           new Date(appointment.termino),
-                          new Date(appointment.horario)
+                          new Date(appointment.dataHorario)
                         )
                       : 1;
 
@@ -98,9 +98,10 @@ const DiaView = ({ currentDate, appointments, handleEdit, handleDelete }) => {
                           setOpenPopUp(true);
                         }}
                       >
-                        <p>{appointment?.nomeCliente}</p>
+                        <p>{appointment?.cliente?.nome}</p>
+                        <small>{appointment?.tatuador?.nome}</small> {""}
                         {appointmentDate.toLocaleTimeString("pt-BR", {
-                          timeZone: "UTC",
+                          timeZone: "America/Sao_Paulo",
                           hour: "2-digit",
                           minute: "2-digit",
                         })}
