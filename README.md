@@ -5,13 +5,16 @@ Este projeto visa desenvolver um software para o gerenciamento de estoque e agen
 ### Os principais stakeholder do projeto serão:
 * Kagun Tattoo - Dona do estúdio;
 * Jeferson Kenedy - Professor da disciplina;
-* Paulyne Jucá - Professora de PDS (Projeto Detalhado de Software)
+* Paulyne Jucá - Professora de PDS (Projeto Detalhado de Software);
+* Diana Braga - Professora de GP (Gerência de Projetos);
 * Lívia Almada - Professora de FBD (Fundamento de Banco de Dados);
 * Danyel Granzotti - Membro da equipe;
 * Jhordanna Gonçalves - Membro da equipe;
 * João Bevilaqua - Membro da equipe;
 * Kendriks da Paixão - Membro da equipe;
-* Manoel Neto - Membro da equipe;
+* Larissa Saraiva- Membro da equipe;
+* Clientes do Estúdio;
+* Fornecedores de produtos para o estúdio de tatuagem.
 
 ## Tecnologias Utilizadas
 * Backend: Node.js, Express
